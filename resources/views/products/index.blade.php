@@ -1,0 +1,157 @@
+@extends('layouts.dashboard')
+
+@section('title', 'Produits')
+@section('page-title', 'Gestion des produits')
+
+@section('content')
+<div class="page-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+  <div>
+    <h1><i class="bi bi-controller me-2"></i>Produits</h1>
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ route('dashboard') }}">Accueil</a></li>
+        <li class="breadcrumb-item active">Produits</li>
+      </ol>
+    </nav>
+  </div>
+  <a href="{{ route('products.create') }}" class="btn btn-primary">
+    <i class="bi bi-plus-lg me-1"></i>Nouveau produit
+  </a>
+</div>
+
+<div class="mb-3">
+  <span class="badge bg-primary fs-6">{{ $products->total() }} produit(s) au total</span>
+</div>
+
+{{-- Filtres --}}
+<div class="card border-0 shadow-sm mb-4">
+  <div class="card-body">
+    <form method="GET" action="{{ route('products.index') }}" id="filterForm" class="row g-3 align-items-end">
+      <div class="col-md-3">
+        <label class="form-label small">Rechercher</label>
+        <input type="text" name="search" id="searchInput" class="form-control"
+               placeholder="Nom, référence, code-barres..."
+               value="{{ $filters['search'] ?? '' }}">
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small">Catégorie</label>
+        <select name="category_id" class="form-select filter-input">
+          <option value="">Toutes</option>
+          @foreach($categories as $cat)
+            <option value="{{ $cat->id }}" @selected(($filters['category_id'] ?? '') == $cat->id)>{{ $cat->name }}</option>
+          @endforeach
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small">Marque</label>
+        <select name="brand" class="form-select filter-input">
+          <option value="">Toutes</option>
+          @foreach($brands as $brand)
+            <option value="{{ $brand }}" @selected(($filters['brand'] ?? '') === $brand)>{{ $brand }}</option>
+          @endforeach
+        </select>
+      </div>
+      <div class="col-md-2">
+        <label class="form-label small">Stock</label>
+        <select name="stock_status" class="form-select filter-input">
+          <option value="">Tous</option>
+          <option value="low" @selected(($filters['stock_status'] ?? '') === 'low')>Stock faible</option>
+          <option value="out" @selected(($filters['stock_status'] ?? '') === 'out')>Rupture</option>
+        </select>
+      </div>
+      <div class="col-md-1">
+        <label class="form-label small">Statut</label>
+        <select name="is_active" class="form-select filter-input">
+          <option value="">Tous</option>
+          <option value="1" @selected(($filters['is_active'] ?? '') === '1')>Actifs</option>
+          <option value="0" @selected(($filters['is_active'] ?? '') === '0')>Inactifs</option>
+        </select>
+      </div>
+      <div class="col-md-2">
+        <button type="submit" class="btn btn-outline-primary w-100"><i class="bi bi-search"></i></button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="table-card" id="productsTableWrapper">
+  <div class="table-responsive">
+    <table class="table table-hover mb-0">
+      <thead>
+        <tr>
+          <th style="width:50px"></th>
+          <th>Réf.</th>
+          <th>Produit</th>
+          <th>Catégorie</th>
+          <th class="text-end">Prix vente</th>
+          <th class="text-center">Stock</th>
+          <th>Alerte</th>
+          <th>Statut</th>
+          <th class="text-end">Actions</th>
+        </tr>
+      </thead>
+      @include('products.partials.table', ['products' => $products])
+    </table>
+  </div>
+  <div id="paginationWrapper">
+    @include('products.partials.pagination', ['products' => $products])
+  </div>
+</div>
+@endsection
+
+@push('scripts')
+<script>
+(function () {
+  const form = document.getElementById('filterForm');
+  const searchInput = document.getElementById('searchInput');
+  const tbody = document.querySelector('#productsTableWrapper tbody');
+  const paginationWrapper = document.getElementById('paginationWrapper');
+  let debounceTimer;
+
+  function fetchProducts(url) {
+    const params = new URLSearchParams(new FormData(form));
+    const fetchUrl = url || '{{ route('products.index') }}?' + params.toString();
+
+    fetch(fetchUrl, {
+      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' }
+    })
+    .then(response => {
+      if (!response.ok) throw new Error('Erreur réseau');
+      return response.json();
+    })
+    .then(data => {
+      if (data.html && tbody) {
+        tbody.outerHTML = data.html;
+      }
+      if (data.pagination && paginationWrapper) {
+        paginationWrapper.innerHTML = data.pagination;
+      }
+      bindPaginationLinks();
+    })
+    .catch(err => console.error('Erreur chargement produits:', err));
+  }
+
+  function bindPaginationLinks() {
+    document.querySelectorAll('#paginationWrapper a.page-link').forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        fetchProducts(this.href);
+      });
+    });
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', function () {
+      clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => fetchProducts(), 400);
+    });
+  }
+
+  document.querySelectorAll('.filter-input').forEach(el => {
+    el.addEventListener('change', () => fetchProducts());
+  });
+
+  bindPaginationLinks();
+})();
+</script>
+@endpush
