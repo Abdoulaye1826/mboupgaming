@@ -15,9 +15,11 @@ class RoleFactory extends Factory
 
     public function definition(): array
     {
+        $slug = fake()->randomElement(RoleSlug::cases());
+
         return [
-            'name' => fake()->jobTitle(),
-            'slug' => fake()->unique()->slug(2),
+            'name' => $slug->label(),
+            'slug' => $slug->value,
             'description' => fake()->sentence(),
             'permissions' => [],
         ];

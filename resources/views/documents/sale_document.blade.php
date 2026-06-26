@@ -10,19 +10,33 @@
   @endphp
   <title>SEN SOLUTION ELECTRONIQUE — {{ $documentType }} {{ $documentNumber }}</title>
   <style>
+    /* ============================================================
+       Modèle économique en encre : pas de fonds colorés ni de
+       dégradés. Uniquement du texte noir/gris sur fond blanc, avec
+       une seule couleur d'accent (--ink) réservée aux bordures,
+       filets et libellés clés — jamais en aplat. Imprimable en
+       noir et blanc sans perte d'information.
+       ============================================================ */
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
     @page {
       margin: 0;
     }
 
+    :root {
+      --ink: #1a237e;
+      --accent: #1a237e;
+      --text: #1a1a2e;
+      --text-muted: #5b6479;
+      --line: #c7cad6;
+      --line-light: #e3e5ec;
+    }
+
     body {
       font-family: 'Segoe UI', Arial, sans-serif;
       font-size: 13px;
-      color: #1a1a2e;
-      background: #f0f4f8;
-      -webkit-print-color-adjust: exact;
-      print-color-adjust: exact;
+      color: var(--text);
+      background: #fff;
     }
 
     .page {
@@ -32,165 +46,162 @@
       background: #fff;
       position: relative;
       overflow: hidden;
-      padding-bottom: 96px;
+      padding-bottom: 80px;
     }
 
-    /* ── HEADER ── */
+    /* ── HEADER : fond blanc, simple filet de séparation ── */
     .header {
-      background: linear-gradient(135deg, #1a237e 0%, #283593 60%, #1565c0 100%);
       padding: 0;
       position: relative;
-      overflow: hidden;
     }
 
     .header-inner {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 24px 32px 20px;
+      padding: 22px 32px 16px;
     }
 
     .brand { display: flex; align-items: center; gap: 14px; }
 
     .brand-icon {
-      width: 64px; height: 64px;
-      background: rgba(255,255,255,0.15);
+      width: 78px; height: 78px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
-      border: 1.5px solid rgba(255,255,255,0.25);
+      border: 2px solid var(--accent);
       overflow: hidden;
     }
 
     .brand-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    .brand-name { color: #fff; font-size: 26px; font-weight: 700; letter-spacing: -0.5px; line-height: 1; }
-    .brand-sub { color: rgba(255,255,255,0.7); font-size: 11px; letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; }
+    .brand-name { color: var(--text); font-size: 22px; font-weight: 700; letter-spacing: -0.3px; line-height: 1; }
+    .brand-sub { color: var(--text-muted); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; }
 
     .header-doc { text-align: right; }
-    .doc-type { color: rgba(255,255,255,0.85); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px; }
-    .doc-number { color: #fff; font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+    .doc-type { color: var(--text-muted); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px; }
+    .doc-number { color: var(--text); font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
 
+    /* Badge de statut : juste un contour, pas d'aplat de couleur */
     .doc-status {
-      display: inline-block; margin-top: 6px; padding: 3px 12px; border-radius: 20px;
-      font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase;
+      display: inline-block; margin-top: 6px; padding: 2px 10px; border-radius: 3px;
+      font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      border: 1px solid var(--text);
+      color: var(--text);
     }
-    .status-issued    { background: rgba(255,193,7,0.25); color: #FFD54F; border: 1px solid rgba(255,193,7,0.4); }
-    .status-paid      { background: rgba(76,175,80,0.25); color: #81C784; border: 1px solid rgba(76,175,80,0.4); }
-    .status-cancelled { background: rgba(244,67,54,0.25); color: #EF9A9A; border: 1px solid rgba(244,67,54,0.4); }
 
-    .header-stripe { height: 6px; background: linear-gradient(90deg, #FF6F00, #FFB300, #FFF176, #FFB300, #FF6F00); }
+    .header-stripe { height: 3px; background: var(--accent); }
 
-    /* ── META BAND ── */
+    /* ── META BAND : fond blanc, filet inférieur uniquement ── */
     .meta-band {
       display: grid;
       grid-template-columns: 1fr auto 1fr;
       align-items: start;
       gap: 20px;
-      padding: 22px 32px;
-      border-bottom: 1px solid #e8eaf6;
-      background: #fafbff;
+      padding: 18px 32px;
+      border-bottom: 1px solid var(--line);
     }
 
-    .meta-block h4 { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #7986cb; margin-bottom: 8px; }
-    .meta-block p { color: #1a237e; font-size: 13px; line-height: 1.7; }
-    .meta-block .name { font-size: 15px; font-weight: 600; color: #0d1b6e; }
-    .meta-divider { width: 1px; background: #e8eaf6; align-self: stretch; }
+    .meta-block h4 { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .meta-block p { color: var(--text); font-size: 13px; line-height: 1.6; }
+    .meta-block .name { font-size: 14px; font-weight: 700; color: var(--text); }
+    .meta-divider { width: 1px; background: var(--line); align-self: stretch; }
     .meta-block.right { text-align: right; }
 
+    /* Date : simple encadré, plus de pastille pleine */
     .date-badge {
       display: inline-flex; flex-direction: column; align-items: center;
-      background: #1a237e; color: #fff; border-radius: 12px; padding: 10px 16px; min-width: 80px;
+      border: 1px solid var(--line); border-radius: 6px; padding: 6px 14px; min-width: 76px;
     }
-    .date-badge .day { font-size: 24px; font-weight: 700; line-height: 1; }
-    .date-badge .month { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
-    .date-badge .year { font-size: 12px; opacity: 0.7; }
+    .date-badge .day { font-size: 18px; font-weight: 700; line-height: 1.1; color: var(--text); }
+    .date-badge .month { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
+    .date-badge .year { font-size: 10px; color: var(--text-muted); }
 
-    /* ── ITEMS TABLE (facture vente) ── */
+    /* ── ITEMS TABLE (facture vente) — sans fond, lignes fines ── */
     .items-section { padding: 0 32px 8px; }
 
-    .items-table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-    .items-table thead tr { background: #1a237e; color: #fff; }
-    .items-table thead th { padding: 11px 14px; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
-    .items-table thead th:first-child { border-radius: 8px 0 0 0; }
-    .items-table thead th:last-child  { border-radius: 0 8px 0 0; text-align: right; }
+    .items-table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+    .items-table thead tr { border-bottom: 2px solid var(--text); }
+    .items-table thead th {
+      padding: 8px 10px; font-size: 9.5px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; color: var(--text); text-align: left;
+    }
     .items-table thead th.num    { text-align: center; }
     .items-table thead th.amount { text-align: right; }
 
-    .items-table tbody tr { border-bottom: 1px solid #e8eaf6; }
-    .items-table tbody tr:nth-child(even) { background: #f5f6fd; }
-    .items-table tbody tr:last-child { border-bottom: 2px solid #e8eaf6; }
-    .items-table tbody td { padding: 12px 14px; color: #2c3e7a; vertical-align: middle; }
-    .items-table tbody td.desc { font-weight: 500; color: #1a237e; }
-    .items-table tbody td.desc small { display: block; font-size: 11px; color: #9fa8da; font-weight: 400; }
+    .items-table tbody tr { border-bottom: 1px solid var(--line-light); }
+    .items-table tbody td { padding: 9px 10px; color: var(--text); vertical-align: middle; }
+    .items-table tbody td.desc { font-weight: 500; }
+    .items-table tbody td.desc small { display: block; font-size: 11px; color: var(--text-muted); font-weight: 400; }
     .items-table tbody td.qty   { text-align: center; }
     .items-table tbody td.unit  { text-align: right; }
-    .items-table tbody td.total { text-align: right; font-weight: 600; color: #1a237e; }
+    .items-table tbody td.total { text-align: right; font-weight: 700; }
 
-    .qty-badge { display: inline-block; background: #e8eaf6; color: #3949ab; border-radius: 6px; padding: 2px 8px; font-size: 12px; font-weight: 600; }
+    .qty-badge { display: inline-block; border: 1px solid var(--line); border-radius: 4px; padding: 1px 8px; font-size: 12px; font-weight: 600; }
 
-    /* ── ÉCHANGE : PRODUITS ── */
-    .exchange-section { padding: 24px 32px 8px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: stretch; }
+    /* ── ÉCHANGE : PRODUITS — cartes en simple encadré ── */
+    .exchange-section { padding: 22px 32px 8px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: stretch; }
 
-    .exchange-card { border: 1px solid #e8eaf6; border-radius: 10px; padding: 16px; background: #f8f9ff; }
-    .exchange-card h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #7986cb; margin-bottom: 10px; }
-    .exchange-card .product-name { font-size: 15px; font-weight: 600; color: #1a237e; margin-bottom: 4px; }
-    .exchange-card .product-ref { font-size: 11px; color: #9fa8da; margin-bottom: 12px; }
-    .exchange-card .value-row { display: flex; justify-content: space-between; align-items: center; border-top: 1px dashed #e0e4f4; padding-top: 10px; }
-    .exchange-card .value-row .label { font-size: 12px; color: #4a5580; font-weight: 500; }
-    .exchange-card .value-row .val   { font-size: 16px; font-weight: 700; color: #1a237e; }
+    .exchange-card { border: 1px solid var(--line); border-radius: 6px; padding: 14px; }
+    .exchange-card h4 { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .exchange-card .product-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
+    .exchange-card .product-ref { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
+    .exchange-card .value-row { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line-light); padding-top: 8px; }
+    .exchange-card .value-row .label { font-size: 11px; color: var(--text-muted); font-weight: 500; }
+    .exchange-card .value-row .val   { font-size: 15px; font-weight: 700; color: var(--text); }
 
-    .exchange-arrow { display: flex; align-items: center; justify-content: center; font-size: 28px; color: #7986cb; font-weight: 700; }
+    .exchange-arrow { display: flex; align-items: center; justify-content: center; font-size: 22px; color: var(--text); font-weight: 700; }
 
-    .items-list { margin-top: 10px; }
-    .items-list .item-row { display: flex; justify-content: space-between; font-size: 12px; color: #4a5580; padding: 3px 0; }
-    .items-list .item-row .qty { color: #9fa8da; }
+    .items-list { margin-top: 8px; }
+    .items-list .item-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text); padding: 2px 0; }
+    .items-list .item-row .qty { color: var(--text-muted); }
 
     /* ── TOTAUX ──
        Même bloc pour le « Total final » (vente) et le « Montant ajouté par le
-       client » (échange) : identique en position, taille et style. */
-    .totals-row { display: flex; justify-content: flex-end; padding: 16px 32px 8px; }
-    .totals-box { width: 300px; }
+       client » (échange) : un simple encadré à double filet, sans aplat. */
+    .totals-row { display: flex; justify-content: flex-end; padding: 14px 32px 8px; }
+    .totals-box { width: 290px; }
 
-    .totals-line { display: flex; justify-content: space-between; padding: 7px 0; border-bottom: 1px dashed #e0e4f4; font-size: 13px; color: #4a5580; }
+    .totals-line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--line-light); font-size: 13px; color: var(--text-muted); }
     .totals-line:last-of-type { border-bottom: none; }
     .totals-line .label { font-weight: 500; }
-    .totals-line .val   { font-weight: 600; color: #1a237e; }
+    .totals-line .val   { font-weight: 600; color: var(--text); }
 
     .totals-grand {
       display: flex; justify-content: space-between; align-items: center;
-      background: #1a237e; color: #fff; border-radius: 10px; padding: 12px 16px; margin-top: 10px;
+      border-top: 2px solid var(--text); border-bottom: 2px solid var(--text);
+      padding: 10px 4px; margin-top: 8px;
     }
-    .totals-grand .label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; opacity: 0.85; }
-    .totals-grand .val   { font-size: 20px; font-weight: 700; }
+    .totals-grand .label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text); }
+    .totals-grand .val   { font-size: 18px; font-weight: 700; color: var(--text); }
 
-    /* ── MONTANT EN LETTRES ── */
+    /* ── MONTANT EN LETTRES — filet gauche, pas de fond ── */
     .amount-words {
-      margin: 8px 32px 0; background: #f0f4ff; border-left: 4px solid #7986cb;
-      border-radius: 0 8px 8px 0; padding: 10px 16px; font-size: 12px; color: #3949ab;
+      margin: 8px 32px 0; border-left: 2px solid var(--text);
+      padding: 6px 14px; font-size: 11.5px; color: var(--text-muted);
     }
-    .amount-words span { font-weight: 600; }
+    .amount-words span { font-weight: 700; color: var(--text); }
 
-    /* ── REMARQUES / CONDITIONS ──
-       Section identique pour les factures de vente et les bons d'échange. */
+    /* ── REMARQUES / CONDITIONS — simple encadré ── */
     .remarks-section { padding: 16px 32px; }
 
-    .info-card { background: #f8f9ff; border: 1px solid #e8eaf6; border-radius: 10px; padding: 14px 16px; }
-    .info-card h4 { font-size: 10px; font-weight: 600; letter-spacing: 1.5px; text-transform: uppercase; color: #7986cb; margin-bottom: 10px; }
-    .info-card p { font-size: 13px; color: #1a237e; font-weight: 600; }
-    .remarks-text { font-size: 11.5px; color: #4a5580; line-height: 1.7; }
+    .info-card { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; }
+    .info-card h4 { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .info-card p { font-size: 13px; color: var(--text); font-weight: 600; }
+    .remarks-text { font-size: 11px; color: var(--text-muted); line-height: 1.6; }
 
     /* ── FOOTER ──
-       Positionné en absolu par rapport à .page (qui réserve l'espace via padding-bottom)
-       afin de toujours rester collé au bas de la page, même si le contenu est court
-       (cas du bon d'échange). Compatible navigateur et DomPDF. */
+       Fond blanc, simple filet supérieur. Positionné en absolu par rapport
+       à .page (qui réserve l'espace via padding-bottom) afin de toujours
+       rester collé au bas de la page, même si le contenu est court (cas
+       du bon d'échange). Compatible navigateur et DomPDF. */
     .footer {
       position: absolute;
       left: 0; right: 0; bottom: 0;
-      background: linear-gradient(135deg, #1a237e 0%, #283593 60%, #1565c0 100%);
-      padding: 18px 32px; display: flex; justify-content: space-between; align-items: center;
+      border-top: 1px solid var(--text);
+      padding: 14px 32px; display: flex; justify-content: space-between; align-items: center;
     }
-    .footer-contact { color: rgba(255,255,255,0.9); font-size: 12px; line-height: 1.8; }
-    .footer-thanks { color: rgba(255,255,255,0.9); font-size: 15px; font-weight: 700; }
+    .footer-contact { color: var(--text-muted); font-size: 11px; line-height: 1.7; }
+    .footer-thanks { color: var(--text); font-size: 13px; font-weight: 700; }
 
     @media print {
       html, body { margin: 0; padding: 0; background: #fff; }
@@ -199,8 +210,8 @@
     }
 
     @media screen {
-      body { padding: 20px 0 40px; }
-      .page { box-shadow: 0 4px 30px rgba(26,35,126,0.15); border-radius: 4px; }
+      body { padding: 20px 0 40px; background: #f0f1f4; }
+      .page { box-shadow: 0 4px 30px rgba(26,35,126,0.08); border-radius: 4px; }
     }
   </style>
 </head>

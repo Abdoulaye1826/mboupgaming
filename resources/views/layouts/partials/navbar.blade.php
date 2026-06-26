@@ -19,9 +19,31 @@
           </span>
         @endif
       </button>
-      <ul class="dropdown-menu dropdown-menu-end shadow" style="width:300px">
-        <li><h6 class="dropdown-header">Notifications</h6></li>
-        <li><span class="dropdown-item-text text-muted small">Aucune notification</span></li>
+      <ul class="dropdown-menu dropdown-menu-end shadow" style="width:320px">
+        <li class="d-flex align-items-center justify-content-between px-3">
+          <h6 class="dropdown-header px-0">Notifications</h6>
+          @if(($unreadCount ?? 0) > 0)
+            <form method="POST" action="{{ route('notifications.read-all') }}" class="mb-2">
+              @csrf
+              <button type="submit" class="btn btn-link btn-sm p-0 text-decoration-none">Tout marquer comme lu</button>
+            </form>
+          @endif
+        </li>
+        @forelse(($recentNotifications ?? []) as $notification)
+          <li>
+            <a href="{{ route('notifications.read', $notification) }}"
+               class="dropdown-item d-flex gap-2 align-items-start py-2 {{ $notification->isRead() ? '' : 'bg-light' }}">
+              <i class="bi {{ $notification->type?->value === 'out_of_stock' ? 'bi-exclamation-octagon text-danger' : 'bi-exclamation-triangle text-warning' }} mt-1"></i>
+              <span>
+                <span class="d-block fw-semibold small">{{ $notification->title }}</span>
+                <span class="d-block text-muted small">{{ $notification->message }}</span>
+                <span class="d-block text-muted" style="font-size:0.7rem">{{ $notification->created_at->diffForHumans() }}</span>
+              </span>
+            </a>
+          </li>
+        @empty
+          <li><span class="dropdown-item-text text-muted small">Aucune notification</span></li>
+        @endforelse
       </ul>
     </div>
 

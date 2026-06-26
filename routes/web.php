@@ -4,9 +4,13 @@ use App\Http\Controllers\CategoryController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ProductController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\ReturnController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\StockController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
@@ -29,11 +33,21 @@ Route::middleware(['auth', 'active'])->group(function () {
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
+    // ── Notifications ─────────────────────────────────────────
+    Route::post('/notifications/read-all', [NotificationController::class, 'readAll'])->name('notifications.read-all');
+    Route::get('/notifications/{notification}/read', [NotificationController::class, 'read'])->name('notifications.read');
+
     // ── Produits & Catégories (Admin, Gestionnaire) ───────────
     Route::middleware('role:admin,manager')->group(function () {
         Route::resource('categories', CategoryController::class)->except(['show']);
         Route::resource('products', ProductController::class);
         Route::resource('suppliers', SupplierController::class)->except(['show']);
+        Route::get('stock', [StockController::class, 'index'])->name('stock.index');
+    });
+
+    // ── Rapports (Admin, Gestionnaire, Caissier) ──────────────
+    Route::middleware('role:admin,manager,cashier')->group(function () {
+        Route::get('reports', [ReportController::class, 'index'])->name('reports.index');
     });
 
     // ── Clients, Ventes, Factures (Admin, Gestionnaire, Caissier)
@@ -51,6 +65,10 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::get('invoices/{invoice}/download', [InvoiceController::class, 'download'])->name('invoices.download');
         Route::get('invoices/{invoice}/whatsapp-payload', [InvoiceController::class, 'whatsAppPayload'])->name('invoices.whatsapp.payload');
         Route::get('invoices/{invoice}/whatsapp', [InvoiceController::class, 'sendWhatsApp'])->name('invoices.whatsapp');
+
+        // ── Gestion des retours ──────────────────────────────
+        Route::get('returns', [ReturnController::class, 'index'])->name('returns.index');
+        Route::post('returns/{saleItem}', [ReturnController::class, 'store'])->name('returns.store');
     });
 
     // ── Utilisateurs (Admin et Gestionnaire) ─────────────────

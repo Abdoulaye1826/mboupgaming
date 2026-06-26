@@ -144,6 +144,22 @@
           <div class="form-text">Déclenche l'alerte « stock faible ».</div>
         </div>
       </div>
+
+      <div class="row" id="marginPreviewRow" style="display:none;">
+        <div class="col-12">
+          <div class="d-flex align-items-center gap-3 p-3 rounded-3" style="background:var(--surface);border:1px solid var(--border);">
+            <i class="bi bi-graph-up-arrow fs-4" style="color:var(--copper);"></i>
+            <div>
+              <div class="small text-muted">Marge réalisée sur ce produit</div>
+              <div class="fw-semibold">
+                <span id="marginAmount">0</span> FCFA
+                <span class="text-muted">·</span>
+                <span id="marginRate">0</span> %
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -190,3 +206,40 @@
   </div>
 
 </div>
+
+@push('scripts')
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const purchaseInput = document.getElementById('purchase_price');
+    const saleInput = document.getElementById('sale_price');
+    const marginRow = document.getElementById('marginPreviewRow');
+    const marginAmountEl = document.getElementById('marginAmount');
+    const marginRateEl = document.getElementById('marginRate');
+
+    if (!purchaseInput || !saleInput || !marginRow) return;
+
+    function updateMarginPreview() {
+      const purchase = parseFloat(purchaseInput.value);
+      const sale = parseFloat(saleInput.value);
+
+      if (isNaN(purchase) || isNaN(sale) || purchase <= 0) {
+        marginRow.style.display = 'none';
+        return;
+      }
+
+      const margin = sale - purchase;
+      const rate = (margin / purchase) * 100;
+
+      marginAmountEl.textContent = margin.toLocaleString('fr-FR', { maximumFractionDigits: 0 });
+      marginRateEl.textContent = rate.toLocaleString('fr-FR', { maximumFractionDigits: 1 });
+
+      marginAmountEl.parentElement.style.color = margin < 0 ? 'var(--danger)' : '';
+      marginRow.style.display = '';
+    }
+
+    purchaseInput.addEventListener('input', updateMarginPreview);
+    saleInput.addEventListener('input', updateMarginPreview);
+    updateMarginPreview();
+  });
+</script>
+@endpush

@@ -56,6 +56,15 @@
 
 {{-- Graphiques --}}
 <div class="row g-3 mb-4">
+  <div class="col-lg-12">
+    <div class="chart-card">
+      <div class="card-title"><i class="bi bi-graph-up me-2"></i>Évolution des ventes journalières (30 derniers jours)</div>
+      <canvas id="salesByDayChart" height="80"></canvas>
+    </div>
+  </div>
+</div>
+
+<div class="row g-3 mb-4">
   <div class="col-lg-8">
     <div class="chart-card">
       <div class="card-title"><i class="bi bi-bar-chart me-2"></i>Ventes par mois (FCFA)</div>
@@ -326,6 +335,44 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
 <script>
   const chartDefaults = { responsive: true, maintainAspectRatio: true };
+
+  // Évolution journalière des ventes (30 derniers jours)
+  new Chart(document.getElementById('salesByDayChart'), {
+    type: 'line',
+    data: {
+      labels: @json($salesByDay['labels']),
+      datasets: [{
+        label: 'CA (FCFA)',
+        data: @json($salesByDay['data']),
+        borderColor: '#d97706',
+        backgroundColor: 'rgba(217, 119, 6, 0.12)',
+        fill: true,
+        tension: 0.35,
+        pointRadius: 2,
+        pointHoverRadius: 5,
+        borderWidth: 2,
+      }]
+    },
+    options: {
+      ...chartDefaults,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: function (ctx) {
+              const counts = @json($salesByDay['counts']);
+              const count = counts[ctx.dataIndex] ?? 0;
+              return ctx.parsed.y.toLocaleString('fr-FR') + ' FCFA (' + count + ' vente' + (count > 1 ? 's' : '') + ')';
+            }
+          }
+        }
+      },
+      scales: {
+        y: { beginAtZero: true },
+        x: { ticks: { maxRotation: 0, autoSkip: true, maxTicksLimit: 12 } }
+      }
+    }
+  });
 
   // Ventes par mois
   new Chart(document.getElementById('salesByMonthChart'), {

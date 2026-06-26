@@ -20,6 +20,8 @@ class SaleItem extends Model
         'unit_price',
         'discount',
         'line_total',
+        'returned_at',
+        'returned_by',
     ];
 
     protected $casts = [
@@ -27,6 +29,7 @@ class SaleItem extends Model
         'unit_price' => 'decimal:2',
         'discount' => 'decimal:2',
         'line_total' => 'decimal:2',
+        'returned_at' => 'datetime',
     ];
 
     // ─── Relations ───────────────────────────────────────────
@@ -39,5 +42,29 @@ class SaleItem extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function returnedBy(): BelongsTo
+    {
+        return $this->belongsTo(User::class, 'returned_by');
+    }
+
+    // ─── Scopes ──────────────────────────────────────────────
+
+    public function scopeReturned($query)
+    {
+        return $query->whereNotNull('returned_at');
+    }
+
+    public function scopeNotReturned($query)
+    {
+        return $query->whereNull('returned_at');
+    }
+
+    // ─── Méthodes métier ─────────────────────────────────────
+
+    public function isReturned(): bool
+    {
+        return $this->returned_at !== null;
     }
 }

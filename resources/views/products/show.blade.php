@@ -22,73 +22,80 @@
   </div>
 </div>
 
-<div class="row g-4">
+<div class="row g-4 u-animate">
   <div class="col-lg-4">
-    <div class="card border-0 shadow-sm">
-      <div class="card-body text-center">
-        @if($product->image)
-          <img src="{{ asset('storage/'.$product->image) }}" alt="{{ $product->name }}"
-               class="img-fluid rounded mb-3" style="max-height:220px;object-fit:contain">
-        @else
-          <div class="bg-light rounded d-flex align-items-center justify-content-center mb-3" style="height:180px">
-            <i class="bi bi-controller" style="font-size:4rem;color:#cbd5e1"></i>
-          </div>
-        @endif
-        <h5 class="fw-bold">{{ $product->name }}</h5>
-        <p class="text-muted mb-2">{{ $product->brand }}</p>
-        <span class="badge bg-light text-dark">{{ $product->category?->name }}</span>
+    <div class="detail-hero">
+      @if($product->image)
+        <img src="{{ asset('storage/'.$product->image) }}" alt="{{ $product->name }}" class="detail-hero__image" loading="lazy">
+      @else
+        <div class="detail-hero__placeholder">
+          <i class="bi bi-controller"></i>
+        </div>
+      @endif
+      <h2>{{ $product->name }}</h2>
+      <div class="detail-hero__sub">{{ $product->brand ?? 'Marque non renseignée' }}</div>
+      <div class="detail-hero__badges">
+        <span class="badge bg-info">{{ $product->category?->name ?? 'Sans catégorie' }}</span>
         @if($product->is_active)
-          <span class="badge bg-success ms-1">Actif</span>
+          <span class="badge bg-success">Actif</span>
         @else
-          <span class="badge bg-secondary ms-1">Inactif</span>
+          <span class="badge bg-secondary">Inactif</span>
+        @endif
+        @if($product->isOutOfStock())
+          <span class="badge bg-danger">Rupture</span>
+        @elseif($product->isLowStock())
+          <span class="badge bg-warning text-dark">Stock faible</span>
         @endif
       </div>
     </div>
   </div>
 
   <div class="col-lg-8">
-    <div class="card border-0 shadow-sm mb-4">
-      <div class="card-header bg-white fw-semibold">Informations</div>
-      <div class="card-body">
-        <div class="row g-3">
-          <div class="col-md-4">
-            <small class="text-muted d-block">Référence</small>
-            <strong><code>{{ $product->reference }}</code></strong>
+    <div class="detail-card mb-4">
+      <div class="detail-card__header"><i class="bi bi-info-circle"></i>Informations</div>
+      <div class="detail-card__body">
+        <div class="detail-stat-grid mb-4">
+          <div class="detail-stat">
+            <div class="detail-stat__label"><i class="bi bi-upc"></i>Référence</div>
+            <div class="detail-stat__value" style="font-size:.95rem;">{{ $product->reference }}</div>
           </div>
-          <div class="col-md-4">
-            <small class="text-muted d-block">Code-barres</small>
-            <strong>{{ $product->barcode ?? '—' }}</strong>
+          <div class="detail-stat">
+            <div class="detail-stat__label"><i class="bi bi-upc-scan"></i>Code-barres</div>
+            <div class="detail-stat__value" style="font-size:.95rem;">{{ $product->barcode ?? '—' }}</div>
           </div>
-          <div class="col-md-4">
-            <small class="text-muted d-block">Stock</small>
-            <strong class="{{ $product->isOutOfStock() ? 'text-danger' : '' }}">
-              {{ $product->stock_quantity }} / min {{ $product->minimum_stock }}
-            </strong>
-            @if($product->isOutOfStock())
-              <span class="badge bg-danger ms-1">Rupture</span>
-            @elseif($product->isLowStock())
-              <span class="badge bg-warning text-dark ms-1">Stock faible</span>
-            @endif
+          <div class="detail-stat">
+            <div class="detail-stat__label"><i class="bi bi-truck"></i>Fournisseur</div>
+            <div class="detail-stat__value" style="font-size:.95rem;">{{ $product->supplier?->name ?? '—' }}</div>
           </div>
-          <div class="col-md-4">
-            <small class="text-muted d-block">Prix achat</small>
-            <strong>{{ number_format($product->purchase_price, 0, ',', ' ') }} FCFA</strong>
-          </div>
-          <div class="col-md-4">
-            <small class="text-muted d-block">Prix vente</small>
-            <strong class="text-primary">{{ number_format($product->sale_price, 0, ',', ' ') }} FCFA</strong>
-          </div>
-          <div class="col-md-4">
-            <small class="text-muted d-block">Marge</small>
-            <strong>{{ number_format($product->margin, 0, ',', ' ') }} FCFA ({{ $product->margin_rate }}%)</strong>
-          </div>
-          @if($product->description)
-            <div class="col-12">
-              <small class="text-muted d-block">Description</small>
-              <p class="mb-0">{{ $product->description }}</p>
+          <div class="detail-stat">
+            <div class="detail-stat__label"><i class="bi bi-boxes"></i>Stock</div>
+            <div class="detail-stat__value {{ $product->isOutOfStock() ? 'text-danger' : '' }}">
+              {{ $product->stock_quantity }} <span class="text-muted" style="font-size:.75rem;">/ min {{ $product->minimum_stock }}</span>
             </div>
-          @endif
+          </div>
+          <div class="detail-stat">
+            <div class="detail-stat__label"><i class="bi bi-cash"></i>Prix achat</div>
+            <div class="detail-stat__value">{{ number_format($product->purchase_price, 0, ',', ' ') }} FCFA</div>
+          </div>
+          <div class="detail-stat">
+            <div class="detail-stat__label"><i class="bi bi-tag"></i>Prix vente</div>
+            <div class="detail-stat__value text-copper">{{ number_format($product->sale_price, 0, ',', ' ') }} FCFA</div>
+          </div>
+          <div class="detail-stat detail-stat--accent">
+            <div class="detail-stat__label"><i class="bi bi-graph-up-arrow"></i>Marge</div>
+            <div class="detail-stat__value {{ $product->margin < 0 ? 'text-danger' : 'text-success' }}">
+              {{ number_format($product->margin, 0, ',', ' ') }} FCFA
+              <span style="font-size:.8rem;font-weight:600;">({{ $product->margin_rate }}%)</span>
+            </div>
+          </div>
         </div>
+
+        @if($product->description)
+          <div>
+            <div class="detail-stat__label mb-2"><i class="bi bi-card-text"></i>Description</div>
+            <p class="mb-0" style="color:var(--text);line-height:1.6;">{{ $product->description }}</p>
+          </div>
+        @endif
       </div>
     </div>
 

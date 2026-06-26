@@ -26,6 +26,10 @@ class AppServiceProvider extends ServiceProvider
                 $user->loadMissing('role');
                 $view->with('menuItems', app(MenuService::class)->forUser($user));
                 $view->with('unreadCount', AppNotification::forUser($user->id)->unread()->count());
+                $view->with('recentNotifications', AppNotification::forUser($user->id)
+                    ->latest()
+                    ->limit(6)
+                    ->get());
             }
         });
     }

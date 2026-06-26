@@ -16,6 +16,7 @@ use App\Services\InvoiceService;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 class SaleService
@@ -130,6 +131,10 @@ class SaleService
         }
 
         return DB::transaction(function () use ($sale, $data, $previousStatus) {
+            if (Schema::hasColumn('sale_items', 'returned_at') && $sale->items()->whereNotNull('returned_at')->exists()) {
+                throw new \RuntimeException('Impossible de modifier une vente dont un produit a déjà été retourné.');
+            }
+
             if ($previousStatus === SaleStatus::Validated) {
                 $this->reverseStockChanges($sale);
             }

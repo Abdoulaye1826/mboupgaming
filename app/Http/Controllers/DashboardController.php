@@ -15,6 +15,7 @@ class DashboardController extends Controller
     {
         return view('dashboard.index', [
             'stats' => $this->dashboardService->getStats(),
+            'salesByDay' => $this->dashboardService->getSalesByDay(),
             'salesByMonth' => $this->dashboardService->getSalesByMonth(),
             'salesByCategory' => $this->dashboardService->getSalesByCategory(),
             'invoiceStatusSummary' => $this->dashboardService->getInvoiceStatusSummary(),

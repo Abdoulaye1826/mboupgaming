@@ -3,12 +3,12 @@
     <tr>
       <td>
         @if($product->image)
-          <img src="{{ asset('storage/'.$product->image) }}" alt="" class="rounded"
-               style="width:40px;height:40px;object-fit:cover">
+          <img src="{{ asset('storage/'.$product->image) }}" alt="" class="rounded" loading="lazy"
+               style="width:92px;height:92px;object-fit:cover">
         @else
           <div class="bg-light rounded d-flex align-items-center justify-content-center"
-               style="width:40px;height:40px">
-            <i class="bi bi-controller text-muted"></i>
+               style="width:92px;height:92px">
+            <i class="bi bi-controller text-muted fs-2"></i>
           </div>
         @endif
       </td>

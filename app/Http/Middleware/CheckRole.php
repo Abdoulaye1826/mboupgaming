@@ -24,7 +24,7 @@ class CheckRole
         $slug = $user->role?->slug;
         $userSlug = $slug instanceof RoleSlug ? $slug->value : (string) $slug;
 
-        if (! in_array($userSlug, $roles, true)) {
+        if ($userSlug !== RoleSlug::Admin->value && ! in_array($userSlug, $roles, true)) {
             abort(403, 'Accès non autorisé pour votre rôle.');
         }
 

@@ -53,6 +53,12 @@ class MenuService
                 'roles' => ['admin', 'manager'],
             ],
             [
+                'label' => 'Mouvements de stock',
+                'route' => 'stock.index',
+                'icon' => 'bi-arrow-down-up',
+                'roles' => ['admin', 'manager'],
+            ],
+            [
                 'label' => 'Clients',
                 'route' => 'customers.index',
                 'icon' => 'bi-people',
@@ -68,6 +74,18 @@ class MenuService
                 'label' => 'Factures',
                 'route' => 'invoices.index',
                 'icon' => 'bi-receipt',
+                'roles' => ['admin', 'manager', 'cashier'],
+            ],
+            [
+                'label' => 'Gestion des retours',
+                'route' => 'returns.index',
+                'icon' => 'bi-arrow-return-left',
+                'roles' => ['admin', 'manager', 'cashier'],
+            ],
+            [
+                'label' => 'Rapports',
+                'route' => 'reports.index',
+                'icon' => 'bi-graph-up',
                 'roles' => ['admin', 'manager', 'cashier'],
             ],
             [

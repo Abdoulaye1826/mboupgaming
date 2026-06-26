@@ -20,15 +20,22 @@
   </a>
 </div>
 
-<div class="card border-0 shadow-sm">
-  <div class="card-body">
-    <form action="{{ route('invoices.store') }}" method="POST">
-      @csrf
-      @include('invoices._form', ['invoice' => null])
-      <div class="mt-4 text-end">
-        <button type="submit" class="btn btn-primary">Enregistrer la facture</button>
+<div class="form-shell u-animate">
+  <form action="{{ route('invoices.store') }}" method="POST" data-ui-form novalidate>
+    @csrf
+    <div class="form-card">
+      <div class="form-card__header">
+        <h2><i class="bi bi-receipt"></i>Fiche facture</h2>
+        <p class="form-card__subtitle">Sélectionnez la vente associée — le client et les montants sont repris automatiquement.</p>
       </div>
-    </form>
-  </div>
+      <div class="form-card__body">
+        @include('invoices._form', ['invoice' => null])
+      </div>
+      <div class="form-card__footer">
+        <a href="{{ route('invoices.index') }}" class="btn btn-outline-secondary"><i class="bi bi-x-lg me-1"></i>Annuler</a>
+        <button type="submit" class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>Enregistrer la facture</button>
+      </div>
+    </div>
+  </form>
 </div>
 @endsection

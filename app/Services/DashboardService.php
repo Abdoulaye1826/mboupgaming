@@ -63,6 +63,42 @@ class DashboardService
     }
 
     /**
+     * Ventes journalières des 30 derniers jours (pour graphique).
+     */
+    public function getSalesByDay(int $days = 30): array
+    {
+        $start = Carbon::today()->subDays($days - 1);
+
+        $rows = Sale::validated()
+            ->where('sale_date', '>=', $start)
+            ->select(
+                DB::raw('DATE(sale_date) as day'),
+                DB::raw('SUM(total_ttc) as total'),
+                DB::raw('COUNT(*) as count')
+            )
+            ->groupBy('day')
+            ->orderBy('day')
+            ->get()
+            ->keyBy('day');
+
+        $labels = [];
+        $data = [];
+        $counts = [];
+
+        for ($i = 0; $i < $days; $i++) {
+            $date = $start->copy()->addDays($i);
+            $key = $date->format('Y-m-d');
+            $labels[] = $date->format('d/m');
+
+            $row = $rows->get($key);
+            $data[] = $row ? (float) $row->total : 0;
+            $counts[] = $row ? (int) $row->count : 0;
+        }
+
+        return compact('labels', 'data', 'counts');
+    }
+
+    /**
      * Ventes mensuelles des 12 derniers mois (pour graphique).
      */
     public function getSalesByMonth(): array

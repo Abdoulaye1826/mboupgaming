@@ -10,6 +10,7 @@ enum RoleSlug: string
     case Admin = 'admin';
     case Manager = 'manager';
     case Cashier = 'cashier';
+    case Driver = 'driver';
 
     public function label(): string
     {
@@ -17,6 +18,7 @@ enum RoleSlug: string
             self::Admin => 'Administrateur',
             self::Manager => 'Gestionnaire',
             self::Cashier => 'Caissier',
+            self::Driver => 'Livreur',
         };
     }
 }

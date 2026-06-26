@@ -118,6 +118,10 @@ class InvoiceService
 
     public function delete(Invoice $invoice): void
     {
+        if ($invoice->status === InvoiceStatus::Paid) {
+            throw new \RuntimeException('Impossible de supprimer une facture déjà payée.');
+        }
+
         $invoiceNumber = $invoice->invoice_number;
         $invoice->delete();
 
