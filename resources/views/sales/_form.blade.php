@@ -281,9 +281,10 @@
 @php
   $existingPaymentsCount = $sale?->invoice?->payments?->count() ?? 0;
   $currentPaymentMethod = old('payment_method', $sale?->invoice?->payments?->first()?->method?->value ?? '');
+  $currentAmountGiven = old('amount_given', $existingPaymentsCount > 0 ? $sale?->invoice?->amount_paid : null);
 @endphp
-<div class="row">
-  <div class="col-md-4 mb-3" id="totalColumn" style="display: {{ old('sale_type', $sale?->sale_type->value ?? 'vente') === 'echange' ? 'none' : 'block' }};">
+<div class="row" id="totalColumn" style="display: {{ old('sale_type', $sale?->sale_type->value ?? 'vente') === 'echange' ? 'none' : 'flex' }};">
+  <div class="col-md-4 mb-3">
     <label for="total_ttc" class="form-label">Total</label>
     <input type="number" step="0.01" min="0" class="form-control @error('total_ttc') is-invalid @enderror"
            id="total_ttc" name="total_ttc" value="{{ old('total_ttc', $sale?->total_ttc ?? 0) }}" readonly>
@@ -291,6 +292,24 @@
     <div class="form-text">Le total est calculé automatiquement à partir des produits.</div>
   </div>
   <div class="col-md-4 mb-3">
+    <label for="amount_given" class="form-label">Montant donné par le client (FCFA)</label>
+    <input type="number" step="0.01" min="0" class="form-control @error('amount_given') is-invalid @enderror"
+           id="amount_given" name="amount_given" value="{{ $currentAmountGiven }}"
+           @if($existingPaymentsCount > 0) readonly @endif>
+    @error('amount_given')<div class="invalid-feedback">{{ $message }}</div>@enderror
+    @if($existingPaymentsCount > 0)
+      <div class="form-text">Paiement déjà enregistré. Pour un complément, utilisez la fiche facture.</div>
+    @else
+      <div class="form-text">Laissez au montant total pour un paiement intégral, ou réduisez-le pour un paiement partiel.</div>
+    @endif
+  </div>
+  <div class="col-md-4 mb-3">
+    <label for="remaining_amount_display" class="form-label">Reste à payer</label>
+    <input type="text" class="form-control fw-bold" id="remaining_amount_display" value="0" readonly>
+  </div>
+</div>
+<div class="row">
+  <div class="col-md-6 mb-3">
     <label for="payment_method" class="form-label">Mode de paiement</label>
     <select id="payment_method" name="payment_method" class="form-select @error('payment_method') is-invalid @enderror">
       <option value="">— Non renseigné —</option>
@@ -299,13 +318,8 @@
       <option value="cash" @selected($currentPaymentMethod === 'cash')>Espèces</option>
     </select>
     @error('payment_method')<div class="invalid-feedback">{{ $message }}</div>@enderror
-    @if($existingPaymentsCount > 0)
-      <div class="form-text">Paiement déjà enregistré. Pour un complément, utilisez la fiche facture.</div>
-    @else
-      <div class="form-text">Enregistre automatiquement le paiement intégral à la validation.</div>
-    @endif
   </div>
-  <div class="col-md-4 mb-3">
+  <div class="col-md-6 mb-3">
     <label for="status" class="form-label">Statut <span class="text-danger">*</span></label>
     <select id="status" name="status" class="form-select @error('status') is-invalid @enderror" required>
       <option value="draft" @selected(old('status', $sale?->status->value ?? 'draft') === 'draft')>Brouillon</option>
@@ -366,15 +380,35 @@
     let imeiRowCounter = 1000;
 
     const totalColumn = document.getElementById('totalColumn');
+    const amountGivenField = document.getElementById('amount_given');
+    const remainingDisplay = document.getElementById('remaining_amount_display');
+    let amountGivenTouched = amountGivenField ? amountGivenField.value !== '' : false;
 
     if (saleTypeField && exchangeFields) {
       saleTypeField.addEventListener('change', function () {
         const isEchange = this.value === 'echange';
         exchangeFields.style.display = isEchange ? 'block' : 'none';
         if (totalColumn) {
-          totalColumn.style.display = isEchange ? 'none' : 'block';
+          totalColumn.style.display = isEchange ? 'none' : 'flex';
         }
         calculateTotals();
+      });
+    }
+
+    function updateRemaining() {
+      if (!remainingDisplay) return;
+      const total = parseFloat(document.getElementById('total_ttc')?.value || 0) || 0;
+      const given = parseFloat(amountGivenField?.value || 0) || 0;
+      const remaining = Math.max(0, total - given);
+      remainingDisplay.value = remaining.toLocaleString('fr-FR', { minimumFractionDigits: 0, maximumFractionDigits: 2 }) + ' FCFA';
+      remainingDisplay.classList.toggle('text-danger', remaining > 0);
+      remainingDisplay.classList.toggle('text-success', remaining <= 0);
+    }
+
+    if (amountGivenField) {
+      amountGivenField.addEventListener('input', function () {
+        amountGivenTouched = true;
+        updateRemaining();
       });
     }
 
@@ -405,10 +439,20 @@
       }
 
       const totalField = document.getElementById('total_ttc');
+      const roundedTotal = Math.max(0, total);
 
       if (totalField) {
-        totalField.value = Math.max(0, total).toFixed(2);
+        totalField.value = roundedTotal.toFixed(2);
       }
+
+      // Par défaut, le montant donné suit le total (paiement intégral) tant
+      // que l'utilisateur ne l'a pas modifié manuellement pour un paiement
+      // partiel.
+      if (amountGivenField && !amountGivenTouched) {
+        amountGivenField.value = roundedTotal.toFixed(2);
+      }
+
+      updateRemaining();
     }
 
     let globalPriceTier = 'client';

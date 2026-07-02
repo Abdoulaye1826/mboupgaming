@@ -31,6 +31,7 @@ class UpdateSaleRequest extends FormRequest
             'discount_amount' => ['nullable', 'numeric', 'min:0'],
             'status' => ['required', 'in:draft,validated,cancelled'],
             'payment_method' => ['nullable', 'in:wave,orange_money,cash'],
+            'amount_given' => ['nullable', 'numeric', 'min:0'],
             'notes' => ['nullable', 'string'],
         ];
     }

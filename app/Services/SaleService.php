@@ -83,8 +83,9 @@ class SaleService
         $data['exchange_voucher_number'] = null;
 
         $paymentMethod = $data['payment_method'] ?? null;
+        $amountGiven = isset($data['amount_given']) && $data['amount_given'] !== '' ? (float) $data['amount_given'] : null;
 
-        return DB::transaction(function () use ($data, $saleType, $userId, $paymentMethod) {
+        return DB::transaction(function () use ($data, $saleType, $userId, $paymentMethod, $amountGiven) {
             if ($saleType === SaleType::Echange) {
                 $exchangeProduct = $this->resolveExchangeProduct($data);
                 if ($exchangeProduct !== null) {
@@ -114,7 +115,7 @@ class SaleService
             if ($sale->status === SaleStatus::Validated) {
                 $this->applyStockChanges($sale);
                 $invoice = $this->invoiceService->createFromSale($sale);
-                $this->recordInitialPayment($invoice, $paymentMethod, $userId);
+                $this->recordInitialPayment($invoice, $paymentMethod, $amountGiven, $userId);
             }
 
             return $sale;
@@ -122,13 +123,17 @@ class SaleService
     }
 
     /**
-     * Enregistre automatiquement le paiement intégral de la facture au mode
-     * choisi lors de la saisie de la vente (Wave, Orange Money, Espèces).
-     * Ne fait rien si aucun mode n'a été choisi, si rien n'est dû, ou si un
-     * paiement existe déjà pour cette facture (pour éviter les doublons lors
-     * d'une modification ultérieure).
+     * Enregistre le paiement initial de la facture au mode choisi lors de la
+     * saisie de la vente (Wave, Orange Money, Espèces). Le montant donné par
+     * le client détermine si le paiement est intégral ou partiel : à défaut
+     * de montant saisi, on suppose un paiement intégral du total (montant
+     * plafonné au total de la facture). Le statut "partiel" de la facture
+     * est ensuite recalculé automatiquement par PaymentService.
+     * Ne fait rien si aucun mode n'a été choisi, si rien n'est dû, si le
+     * montant donné est nul, ou si un paiement existe déjà pour cette
+     * facture (pour éviter les doublons lors d'une modification ultérieure).
      */
-    private function recordInitialPayment(?Invoice $invoice, ?string $paymentMethod, int $userId): void
+    private function recordInitialPayment(?Invoice $invoice, ?string $paymentMethod, ?float $amountGiven, int $userId): void
     {
         if ($paymentMethod === null || $invoice === null) {
             return;
@@ -138,8 +143,16 @@ class SaleService
             return;
         }
 
+        $amount = $amountGiven !== null
+            ? min(max(0, $amountGiven), (float) $invoice->total_ttc)
+            : (float) $invoice->total_ttc;
+
+        if ($amount <= 0) {
+            return;
+        }
+
         $this->paymentService->store($invoice, [
-            'amount' => (float) $invoice->total_ttc,
+            'amount' => $amount,
             'method' => $paymentMethod,
             'paid_at' => now()->toDateString(),
         ], $userId);
@@ -151,6 +164,7 @@ class SaleService
         $saleType = isset($data['sale_type']) ? SaleType::from($data['sale_type']) : $sale->sale_type;
         $data['sale_type'] = $saleType;
         $paymentMethod = $data['payment_method'] ?? null;
+        $amountGiven = isset($data['amount_given']) && $data['amount_given'] !== '' ? (float) $data['amount_given'] : null;
 
         if ($saleType === SaleType::Echange) {
             $exchangeProduct = $this->resolveExchangeProduct($data);
@@ -163,7 +177,7 @@ class SaleService
             $data['exchange_voucher_number'] = null;
         }
 
-        return DB::transaction(function () use ($sale, $data, $previousStatus, $userId, $paymentMethod) {
+        return DB::transaction(function () use ($sale, $data, $previousStatus, $userId, $paymentMethod, $amountGiven) {
             if (Schema::hasColumn('sale_items', 'returned_at') && $sale->items()->whereNotNull('returned_at')->exists()) {
                 throw new \RuntimeException('Impossible de modifier une vente dont un produit a déjà été retourné.');
             }
@@ -207,7 +221,7 @@ class SaleService
                     ]);
                 }
 
-                $this->recordInitialPayment($invoice, $paymentMethod, $userId);
+                $this->recordInitialPayment($invoice, $paymentMethod, $amountGiven, $userId);
             }
 
             return $sale->fresh();
