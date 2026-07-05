@@ -100,7 +100,17 @@
               });
 
           if ($saleItems->isEmpty()) {
-              $saleItems = collect([['product_id' => '', 'quantity' => 1, 'unit_price' => 0, 'imei' => '']]);
+              // Produit présélectionné (bouton "Vendre" depuis la fiche produit) :
+              // on pré-remplit directement la première ligne au lieu de la
+              // laisser vide, pour vendre sans avoir à le rechercher à nouveau.
+              $saleItems = isset($preselectedProduct) && $preselectedProduct
+                  ? collect([[
+                      'product_id' => $preselectedProduct->id,
+                      'quantity' => 1,
+                      'unit_price' => $preselectedProduct->sale_price,
+                      'imei' => '',
+                  ]])
+                  : collect([['product_id' => '', 'quantity' => 1, 'unit_price' => 0, 'imei' => '']]);
           }
         @endphp
 

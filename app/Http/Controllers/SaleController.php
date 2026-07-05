@@ -34,13 +34,21 @@ class SaleController extends Controller
         return view('sales.index', compact('sales', 'filters'));
     }
 
-    public function create(): View
+    public function create(Request $request): View
     {
+        // Permet d'arriver sur le formulaire avec un produit déjà présélectionné
+        // (bouton "Vendre" depuis la fiche produit), pour vendre directement
+        // sans avoir à le rechercher à nouveau dans la liste.
+        $preselectedProduct = $request->filled('product_id')
+            ? Product::active()->find($request->integer('product_id'))
+            : null;
+
         return view('sales.create', [
             'customers' => $this->saleService->getCustomers(),
             'products' => $this->saleService->getProducts(),
             'categories' => $this->saleService->getCategories(),
             'sale' => null,
+            'preselectedProduct' => $preselectedProduct,
         ]);
     }
 

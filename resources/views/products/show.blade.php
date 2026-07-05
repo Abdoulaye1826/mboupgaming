@@ -15,6 +15,16 @@
     </nav>
   </div>
   <div class="d-flex gap-2">
+    @if($product->is_active && !$product->isOutOfStock())
+      <a href="{{ route('sales.create', ['product_id' => $product->id]) }}" class="btn btn-success">
+        <i class="bi bi-cart-plus me-1"></i>Vendre
+      </a>
+    @else
+      <button type="button" class="btn btn-success" disabled
+              title="@if(!$product->is_active) Produit inactif @else Rupture de stock @endif">
+        <i class="bi bi-cart-plus me-1"></i>Vendre
+      </button>
+    @endif
     <a href="{{ route('products.edit', $product) }}" class="btn btn-primary">
       <i class="bi bi-pencil me-1"></i>Modifier
     </a>
