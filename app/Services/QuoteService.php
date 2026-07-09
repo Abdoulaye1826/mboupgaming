@@ -196,7 +196,7 @@ class QuoteService
     {
         $quote->loadMissing(['customer', 'items.product']);
 
-        $pdf = PDF::loadView('documents.quote_document', ['quote' => $quote, 'downloadUrl' => null])
+        $pdf = PDF::loadView('documents.quote_document', ['quote' => $quote, 'downloadUrl' => null, 'isPdf' => true])
             ->setPaper('a4', 'portrait')
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('isHtml5ParserEnabled', true);

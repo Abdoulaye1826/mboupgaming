@@ -32,17 +32,15 @@
 
     .page {
       width: 210mm;
-      min-height: 297mm;
       margin: 0 auto;
       background: #fff;
       position: relative;
-      overflow: hidden;
-      padding-bottom: 80px;
     }
 
     .header { padding: 0; position: relative; }
-    .header-inner { display: flex; align-items: center; justify-content: space-between; padding: 22px 32px 16px; }
-    .brand { display: flex; align-items: center; gap: 14px; }
+    .header-inner { display: table; width: 100%; padding: 22px 32px 16px; }
+    .brand { display: table-cell; vertical-align: top; }
+    .brand-row { display: flex; align-items: center; gap: 14px; }
     .brand-icon {
       width: 78px; height: 78px; border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
@@ -52,7 +50,7 @@
     .brand-name { color: var(--text); font-size: 22px; font-weight: 700; letter-spacing: -0.3px; line-height: 1; }
     .brand-sub { color: var(--text-muted); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; }
 
-    .header-doc { text-align: right; }
+    .header-doc { display: table-cell; vertical-align: top; text-align: right; }
     .doc-type { color: var(--text-muted); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px; }
     .doc-number { color: var(--text); font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
     .doc-status {
@@ -64,14 +62,14 @@
     .header-stripe { height: 3px; background: var(--accent); }
 
     .meta-band {
-      display: grid; grid-template-columns: 1fr auto 1fr; align-items: start;
-      gap: 20px; padding: 18px 32px; border-bottom: 1px solid var(--line);
+      display: table; table-layout: fixed; width: 100%;
+      padding: 18px 32px; border-bottom: 1px solid var(--line);
     }
+    .meta-block { display: table-cell; vertical-align: top; width: 58%; padding-right: 20px; }
     .meta-block h4 { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
     .meta-block p { color: var(--text); font-size: 13px; line-height: 1.6; }
     .meta-block .name { font-size: 14px; font-weight: 700; color: var(--text); }
-    .meta-divider { width: 1px; background: var(--line); align-self: stretch; }
-    .meta-block.right { text-align: right; }
+    .meta-block.right { width: 41%; text-align: right; padding-left: 20px; padding-right: 0; border-left: 1px solid var(--line); }
 
     .date-badge {
       display: inline-flex; flex-direction: column; align-items: center;
@@ -118,19 +116,33 @@
     }
     .amount-words span { font-weight: 700; color: var(--text); }
 
-    .remarks-section { padding: 16px 32px; }
-    .info-card { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; }
+    /* ── SIGNATURE / CACHET — espace réservé pour la validation manuscrite,
+       occupe l'espace en flux normal (pas de min-height forcé : DomPDF gère
+       mal cette technique). */
+    .signature-section {
+      display: table; width: 100%; table-layout: fixed;
+      padding: 0 32px; margin-top: 110px;
+    }
+    .signature-col { display: table-cell; width: 50%; vertical-align: bottom; padding-right: 24px; }
+    .signature-col:last-child { padding-right: 0; padding-left: 24px; }
+    .signature-line { border-top: 1px solid var(--line); margin-bottom: 6px; height: 1px; }
+    .signature-col p { font-size: 10.5px; color: var(--text-muted); text-align: center; text-transform: uppercase; letter-spacing: .5px; }
+
+    .remarks-section { padding: 10px 32px; }
+    .info-card { border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; }
     .info-card h4 { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
     .info-card p { font-size: 13px; color: var(--text); font-weight: 600; }
     .remarks-text { font-size: 11px; color: var(--text-muted); line-height: 1.6; }
 
     .footer {
-      position: absolute; left: 0; right: 0; bottom: 0;
+      margin-top: 14px;
       border-top: 1px solid var(--text);
-      padding: 14px 32px; display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 32px;
+      width: 100%;
+      display: table;
     }
-    .footer-contact { color: var(--text-muted); font-size: 11px; line-height: 1.7; }
-    .footer-thanks { color: var(--text); font-size: 13px; font-weight: 700; }
+    .footer-contact { display: table-cell; vertical-align: middle; text-align: left; color: var(--text-muted); font-size: 11px; line-height: 1.7; }
+    .footer-thanks { display: table-cell; vertical-align: middle; text-align: right; color: var(--text); font-size: 13px; font-weight: 700; }
 
     @media print {
       html, body { margin: 0; padding: 0; background: #fff; }
@@ -157,6 +169,7 @@
       : asset('images/logo.jpeg');
 @endphp
 
+@if(empty($isPdf))
 <div class="no-print" style="display:flex;justify-content:center;gap:12px;margin-bottom:16px;">
   <a href="{{ url()->previous() }}" class="btn btn-outline-secondary" style="padding:10px 28px;border-radius:8px;font-size:13px;font-weight:600;">
     🔙 Retour
@@ -170,18 +183,21 @@
     </a>
   @endif
 </div>
+@endif
 
 <div class="page">
 
   <div class="header">
     <div class="header-inner">
       <div class="brand">
-        <div class="brand-icon">
-          <img src="{{ $logoSrc }}" alt="Mboup Gaming">
-        </div>
-        <div>
-          <div class="brand-name">Mboup Gaming</div>
-          <div class="brand-sub">Système d'information</div>
+        <div class="brand-row">
+          <div class="brand-icon">
+            <img src="{{ $logoSrc }}" alt="Mboup Gaming">
+          </div>
+          <div>
+            <div class="brand-name">Mboup Gaming</div>
+            <div class="brand-sub">Système d'information</div>
+          </div>
         </div>
       </div>
       <div class="header-doc">
@@ -198,15 +214,13 @@
       <h4>Client</h4>
       @if($quote->customer)
         <p class="name">{{ $quote->customer->full_name }}</p>
-        @if($quote->customer->phone)<p>📞 {{ $quote->customer->phone }}</p>@endif
-        @if($quote->customer->email)<p>✉️ {{ $quote->customer->email }}</p>@endif
-        @if($quote->customer->address)<p>📍 {{ $quote->customer->address }}</p>@endif
+        @if($quote->customer->phone)<p>Tél. : {{ $quote->customer->phone }}</p>@endif
+        @if($quote->customer->email)<p>Email : {{ $quote->customer->email }}</p>@endif
+        @if($quote->customer->address)<p>Adresse : {{ $quote->customer->address }}</p>@endif
       @else
         <p class="name">Client anonyme</p>
       @endif
     </div>
-
-    <div class="meta-divider"></div>
 
     <div class="meta-block right">
       <h4>Date</h4>
@@ -236,7 +250,7 @@
       <tbody>
         @forelse($quote->items as $index => $item)
           <tr>
-            <td style="text-align:center;color:#c2b280;font-size:11px;">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</td>
+            <td style="text-align:center;color:#8a97ab;font-size:11px;">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</td>
             <td class="desc">{{ $item->product?->name ?? '—' }}</td>
             <td class="qty"><span class="qty-badge">{{ $item->quantity }}</span></td>
             <td class="unit">{{ number_format($item->unit_price, 0, ',', ' ') }} FCFA</td>
@@ -244,7 +258,7 @@
           </tr>
         @empty
           <tr>
-            <td colspan="5" style="text-align:center;padding:30px;color:#c2b280;">Aucun article</td>
+            <td colspan="5" style="text-align:center;padding:30px;color:#8a97ab;">Aucun article</td>
           </tr>
         @endforelse
       </tbody>
@@ -279,6 +293,17 @@
     Devis établi pour la somme de : <span>{{ \App\Helpers\NumberHelper::toWords($total) ?? number_format($total, 0, ',', ' ') . ' Francs CFA' }}</span>
   </div>
 
+  <div class="signature-section">
+    <div class="signature-col">
+      <div class="signature-line"></div>
+      <p>Date et signature du client</p>
+    </div>
+    <div class="signature-col">
+      <div class="signature-line"></div>
+      <p>Cachet et signature Mboup Gaming</p>
+    </div>
+  </div>
+
   <div class="remarks-section">
     <div class="info-card">
       <h4>Conditions</h4>
@@ -299,9 +324,9 @@
 
   <div class="footer">
     <div class="footer-contact">
-      <div>📧 {{ config('company.email') }}</div>
-      <div>📞 {{ config('company.phone') }}</div>
-      <div>📍 {{ config('company.address_line1') }}, {{ config('company.address_line2') }}</div>
+      <div>Email : {{ config('company.email') }}</div>
+      <div>Tél. : {{ config('company.phone') }}</div>
+      <div>Adresse : {{ config('company.address_line1') }}, {{ config('company.address_line2') }}</div>
       <div>Ninea : {{ config('company.ninea') }} — RC : {{ config('company.rc') }}</div>
     </div>
     <div class="footer-thanks">

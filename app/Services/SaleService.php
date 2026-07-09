@@ -256,8 +256,9 @@ class SaleService
         $sale->load(['customer', 'user', 'items.product', 'items.productImei', 'invoice.payments']);
         $invoice = $sale->invoice;
         $downloadUrl = null;
+        $isPdf = true;
 
-        $pdf = PDF::loadView('documents.sale_document', compact('sale', 'invoice', 'downloadUrl'))
+        $pdf = PDF::loadView('documents.sale_document', compact('sale', 'invoice', 'downloadUrl', 'isPdf'))
             ->setPaper('a4', 'portrait')
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('isHtml5ParserEnabled', true);

@@ -42,12 +42,9 @@
 
     .page {
       width: 210mm;
-      min-height: 297mm;
       margin: 0 auto;
       background: #fff;
       position: relative;
-      overflow: hidden;
-      padding-bottom: 80px;
     }
 
     /* ── HEADER : fond blanc, simple filet de séparation ── */
@@ -57,13 +54,13 @@
     }
 
     .header-inner {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
+      display: table;
+      width: 100%;
       padding: 22px 32px 16px;
     }
 
-    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand { display: table-cell; vertical-align: top; }
+    .brand-row { display: flex; align-items: center; gap: 14px; }
 
     .brand-icon {
       width: 78px; height: 78px;
@@ -78,7 +75,7 @@
     .brand-name { color: var(--text); font-size: 22px; font-weight: 700; letter-spacing: -0.3px; line-height: 1; }
     .brand-sub { color: var(--text-muted); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; }
 
-    .header-doc { text-align: right; }
+    .header-doc { display: table-cell; vertical-align: top; text-align: right; }
     .doc-type { color: var(--text-muted); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px; }
     .doc-number { color: var(--text); font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
 
@@ -92,21 +89,23 @@
 
     .header-stripe { height: 3px; background: var(--accent); }
 
-    /* ── META BAND : fond blanc, filet inférieur uniquement ── */
+    /* ── META BAND : fond blanc, filet inférieur uniquement ──
+       display:table (et non grid : mal supporté par DomPDF, cause un
+       décalage vertical entre les colonnes) pour garantir que les blocs
+       Client et Date/Vente démarrent exactement à la même hauteur. */
     .meta-band {
-      display: grid;
-      grid-template-columns: 1fr auto 1fr;
-      align-items: start;
-      gap: 20px;
+      display: table;
+      table-layout: fixed;
+      width: 100%;
       padding: 18px 32px;
       border-bottom: 1px solid var(--line);
     }
 
+    .meta-block { display: table-cell; vertical-align: top; width: 58%; padding-right: 20px; }
     .meta-block h4 { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
     .meta-block p { color: var(--text); font-size: 13px; line-height: 1.6; }
     .meta-block .name { font-size: 14px; font-weight: 700; color: var(--text); }
-    .meta-divider { width: 1px; background: var(--line); align-self: stretch; }
-    .meta-block.right { text-align: right; }
+    .meta-block.right { width: 41%; text-align: right; padding-left: 20px; padding-right: 0; border-left: 1px solid var(--line); }
 
     /* Date : simple encadré, plus de pastille pleine */
     .date-badge {
@@ -120,7 +119,7 @@
     /* ── ITEMS TABLE (facture vente) — sans fond, lignes fines ── */
     .items-section { padding: 0 32px 8px; }
 
-    .items-table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+    .items-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
     .items-table thead tr { border-bottom: 2px solid var(--text); }
     .items-table thead th {
       padding: 8px 10px; font-size: 9.5px; font-weight: 700; letter-spacing: 1px;
@@ -159,7 +158,7 @@
     /* ── TOTAUX ──
        Même bloc pour le « Total final » (vente) et le « Montant ajouté par le
        client » (échange) : un simple encadré à double filet, sans aplat. */
-    .totals-row { display: flex; justify-content: flex-end; padding: 14px 32px 8px; }
+    .totals-row { display: flex; justify-content: flex-end; padding: 12px 32px 8px; }
     .totals-box { width: 290px; }
 
     .totals-line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--line-light); font-size: 13px; color: var(--text-muted); }
@@ -182,27 +181,42 @@
     }
     .amount-words span { font-weight: 700; color: var(--text); }
 
-    /* ── REMARQUES / CONDITIONS — simple encadré ── */
-    .remarks-section { padding: 16px 32px; }
+    /* ── SIGNATURE / CACHET — espace réservé pour la validation manuscrite,
+       occupe l'espace en flux normal (pas de min-height forcé : DomPDF gère
+       mal cette technique et recrée la page vide constatée précédemment). */
+    .signature-section {
+      display: table; width: 100%; table-layout: fixed;
+      padding: 0 32px; margin-top: 110px;
+    }
+    .signature-col { display: table-cell; width: 50%; vertical-align: bottom; padding-right: 24px; }
+    .signature-col:last-child { padding-right: 0; padding-left: 24px; }
+    .signature-line { border-top: 1px solid var(--line); margin-bottom: 6px; height: 1px; }
+    .signature-col p { font-size: 10.5px; color: var(--text-muted); text-align: center; text-transform: uppercase; letter-spacing: .5px; }
 
-    .info-card { border: 1px solid var(--line); border-radius: 6px; padding: 12px 14px; }
+    /* ── REMARQUES / CONDITIONS — simple encadré ── */
+    .remarks-section { padding: 10px 32px; }
+
+    .info-card { border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; }
     .info-card h4 { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
     .info-card p { font-size: 13px; color: var(--text); font-weight: 600; }
     .remarks-text { font-size: 11px; color: var(--text-muted); line-height: 1.6; }
+    .info-card__group + .info-card__group { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line-light); }
 
     /* ── FOOTER ──
-       Fond blanc, simple filet supérieur. Positionné en absolu par rapport
-       à .page (qui réserve l'espace via padding-bottom) afin de toujours
-       rester collé au bas de la page, même si le contenu est court (cas
-       du bon d'échange). Compatible navigateur et DomPDF. */
+       Fond blanc, simple filet supérieur, en flux normal juste après le
+       contenu. DomPDF gère mal l'ancrage au bas de page (position:absolute
+       et position:fixed cassent tous les deux la pagination ou masquent le
+       pied de page dès que le document est court) : le flux normal est la
+       seule option fiable ici. */
     .footer {
-      position: absolute;
-      left: 0; right: 0; bottom: 0;
+      margin-top: 14px;
       border-top: 1px solid var(--text);
-      padding: 14px 32px; display: flex; justify-content: space-between; align-items: center;
+      padding: 14px 32px;
+      width: 100%;
+      display: table;
     }
-    .footer-contact { color: var(--text-muted); font-size: 11px; line-height: 1.7; }
-    .footer-thanks { color: var(--text); font-size: 13px; font-weight: 700; }
+    .footer-contact { display: table-cell; vertical-align: middle; text-align: left; color: var(--text-muted); font-size: 11px; line-height: 1.7; }
+    .footer-thanks { display: table-cell; vertical-align: middle; text-align: right; color: var(--text); font-size: 13px; font-weight: 700; }
 
     @media print {
       html, body { margin: 0; padding: 0; background: #fff; }
@@ -231,6 +245,7 @@
       : asset('images/logo.jpeg');
 @endphp
 
+@if(empty($isPdf))
 <div class="no-print" style="display:flex;justify-content:center;gap:12px;margin-bottom:16px;">
   <a href="{{ url()->previous() }}" class="btn btn-outline-secondary" style="padding:10px 28px;border-radius:8px;font-size:13px;font-weight:600;">
     🔙 Retour
@@ -244,6 +259,7 @@
     </a>
   @endif
 </div>
+@endif
 
 <div class="page">
 
@@ -251,12 +267,14 @@
   <div class="header">
     <div class="header-inner">
       <div class="brand">
-        <div class="brand-icon">
-          <img src="{{ $logoSrc }}" alt="Mboup Gaming">
-        </div>
-        <div>
-          <div class="brand-name">Mboup Gaming</div>
-          <div class="brand-sub">Système d'information</div>
+        <div class="brand-row">
+          <div class="brand-icon">
+            <img src="{{ $logoSrc }}" alt="Mboup Gaming">
+          </div>
+          <div>
+            <div class="brand-name">Mboup Gaming</div>
+            <div class="brand-sub">Système d'information</div>
+          </div>
         </div>
       </div>
       <div class="header-doc">
@@ -279,20 +297,18 @@
       @if($sale->customer)
         <p class="name">{{ $sale->customer->full_name }}</p>
         @if($sale->customer->phone)
-          <p>📞 {{ $sale->customer->phone }}</p>
+          <p>Tél. : {{ $sale->customer->phone }}</p>
         @endif
         @if(!$isEchange && $sale->customer->email)
-          <p>✉️ {{ $sale->customer->email }}</p>
+          <p>Email : {{ $sale->customer->email }}</p>
         @endif
         @if(!$isEchange && $sale->customer->address)
-          <p>📍 {{ $sale->customer->address }}</p>
+          <p>Adresse : {{ $sale->customer->address }}</p>
         @endif
       @else
         <p class="name">Client anonyme</p>
       @endif
     </div>
-
-    <div class="meta-divider"></div>
 
     <div class="meta-block right">
       <h4>Date</h4>
@@ -397,7 +413,7 @@
         <tbody>
           @forelse($sale->items as $index => $item)
             <tr>
-              <td style="text-align:center;color:#c2b280;font-size:11px;">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</td>
+              <td style="text-align:center;color:#8a97ab;font-size:11px;">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</td>
               <td class="desc">
                 {{ $item->product?->name ?? '—' }}
                 @if($item->productImei)
@@ -410,7 +426,7 @@
             </tr>
           @empty
             <tr>
-              <td colspan="5" style="text-align:center;padding:30px;color:#c2b280;">Aucun article</td>
+              <td colspan="5" style="text-align:center;padding:30px;color:#8a97ab;">Aucun article</td>
             </tr>
           @endforelse
         </tbody>
@@ -458,31 +474,42 @@
     </div>
   @endif
 
-  {{-- ── GARANTIE ── durée choisie à la vente, propre à chaque transaction --}}
-  @if($sale->warranty_duration && $sale->warranty_duration->value !== 'none')
-    <div class="remarks-section" style="padding-bottom:0;">
-      <div class="info-card">
-        <h4>Garantie</h4>
-        <p style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:2px;">{{ $sale->warranty_duration->label() }}</p>
-        @if($sale->warranty_end_date)
-          <p class="remarks-text">Valable jusqu'au {{ $sale->warranty_end_date->format('d/m/Y') }}</p>
-        @endif
-      </div>
+  {{-- ── SIGNATURE / CACHET ── --}}
+  <div class="signature-section">
+    <div class="signature-col">
+      <div class="signature-line"></div>
+      <p>Date et signature du client</p>
     </div>
-  @endif
+    <div class="signature-col">
+      <div class="signature-line"></div>
+      <p>Cachet et signature Mboup Gaming</p>
+    </div>
+  </div>
 
-  {{-- ── REMARQUES / CONDITIONS ── identique pour les factures de vente et les bons d'échange --}}
+  {{-- ── GARANTIE + REMARQUES / CONDITIONS ── un seul encadré, deux groupes
+       séparés par un filet léger quand la garantie est présente. --}}
   <div class="remarks-section">
     <div class="info-card">
-      <h4>Remarques / Conditions</h4>
-      <p class="remarks-text">
-        @php $remarksText = $invoice?->notes ?? $sale->notes; @endphp
-        @if($remarksText)
-          {{ $remarksText }}
-        @else
-          Le service après-vente peut durer une semaine maximum si la garantie n'a pas expiré. Nous ne remboursons pas — nous réparons ou remplaçons.
-        @endif
-      </p>
+      @if($sale->warranty_duration && $sale->warranty_duration->value !== 'none')
+        <div class="info-card__group">
+          <h4>Garantie</h4>
+          <p style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:2px;">{{ $sale->warranty_duration->label() }}</p>
+          @if($sale->warranty_end_date)
+            <p class="remarks-text">Valable jusqu'au {{ $sale->warranty_end_date->format('d/m/Y') }}</p>
+          @endif
+        </div>
+      @endif
+      <div class="info-card__group">
+        <h4>Remarques / Conditions</h4>
+        <p class="remarks-text">
+          @php $remarksText = $invoice?->notes ?? $sale->notes; @endphp
+          @if($remarksText)
+            {{ $remarksText }}
+          @else
+            Le service après-vente peut durer une semaine maximum si la garantie n'a pas expiré. Nous ne remboursons pas — nous réparons ou remplaçons.
+          @endif
+        </p>
+      </div>
     </div>
   </div>
 
@@ -491,9 +518,9 @@
        (aperçu, impression, PDF téléchargé). Aucune date/heure de génération. --}}
   <div class="footer">
     <div class="footer-contact">
-      <div>📧 {{ config('company.email') }}</div>
-      <div>📞 {{ config('company.phone') }}</div>
-      <div>📍 {{ config('company.address_line1') }}, {{ config('company.address_line2') }}</div>
+      <div>Email : {{ config('company.email') }}</div>
+      <div>Tél. : {{ config('company.phone') }}</div>
+      <div>Adresse : {{ config('company.address_line1') }}, {{ config('company.address_line2') }}</div>
       <div>Ninea : {{ config('company.ninea') }} — RC : {{ config('company.rc') }}</div>
     </div>
     <div class="footer-thanks">
