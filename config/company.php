@@ -1,7 +1,7 @@
 <?php
 
 return [
-    'name' => env('COMPANY_NAME', 'GAPS APPLE'),
+    'name' => env('COMPANY_NAME', 'Mboup Gaming'),
 
     'email' => env('COMPANY_EMAIL', 'Nlamine85@gmail.com'),
 
