@@ -259,7 +259,9 @@ class SaleService
         $isPdf = true;
 
         $pdf = PDF::loadView('documents.sale_document', compact('sale', 'invoice', 'downloadUrl', 'isPdf'))
-            ->setPaper('a4', 'portrait')
+            // Voir InvoiceService::renderPdfContent() : dimensions exactes
+            // du gabarit de référence (Gap's Apple).
+            ->setPaper([0, 0, 595.92, 842.88], 'portrait')
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('isHtml5ParserEnabled', true);
 

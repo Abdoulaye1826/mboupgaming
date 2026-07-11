@@ -11,11 +11,10 @@
   <title>Mboup Gaming — {{ $documentType }} {{ $documentNumber }}</title>
   <style>
     /* ============================================================
-       Modèle économique en encre : pas de fonds colorés ni de
-       dégradés. Uniquement du texte noir/gris sur fond blanc, avec
-       une seule couleur d'accent (--ink) réservée aux bordures,
-       filets et libellés clés — jamais en aplat. Imprimable en
-       noir et blanc sans perte d'information.
+       Gabarit calqué sur le modèle de référence (bandeau d'accent,
+       bloc client sur fond gris clair, tableau à en-tête sombre,
+       zone signature/cachet, conditions en pied de page) — même
+       structure, en bleu marine (charte Mboup Gaming) plutôt que doré.
        ============================================================ */
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -24,13 +23,14 @@
     }
 
     :root {
-      --ink: #1e3a5f;
       --accent: #1e3a5f;
       --accent-dark: #14283f;
+      --accent-light: #4c7ab5;
       --text: #1a1a2e;
       --text-muted: #5b6479;
       --line: #c7cad6;
       --line-light: #e3e5ec;
+      --band-bg: #f5f6f8;
     }
 
     body {
@@ -47,12 +47,9 @@
       position: relative;
     }
 
-    /* ── HEADER : fond blanc, simple filet de séparation ── */
-    .header {
-      padding: 0;
-      position: relative;
-    }
+    .top-stripe { height: 7px; background: var(--accent); }
 
+    /* ── HEADER ── */
     .header-inner {
       display: table;
       width: 100%;
@@ -63,7 +60,7 @@
     .brand-row { display: flex; align-items: center; gap: 14px; }
 
     .brand-icon {
-      width: 78px; height: 78px;
+      width: 70px; height: 70px;
       border-radius: 50%;
       display: flex; align-items: center; justify-content: center;
       border: 2px solid var(--accent);
@@ -72,77 +69,72 @@
 
     .brand-icon img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
-    .brand-name { color: var(--text); font-size: 22px; font-weight: 700; letter-spacing: -0.3px; line-height: 1; }
-    .brand-sub { color: var(--text-muted); font-size: 10px; letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; }
+    .brand-name { color: var(--text); font-size: 20px; font-weight: 700; letter-spacing: -0.3px; line-height: 1; }
+    .brand-sub { color: var(--text-muted); font-size: 9.5px; letter-spacing: 2px; text-transform: uppercase; margin-top: 3px; }
 
     .header-doc { display: table-cell; vertical-align: top; text-align: right; }
-    .doc-type { color: var(--text-muted); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 4px; }
-    .doc-number { color: var(--text); font-size: 20px; font-weight: 700; letter-spacing: -0.3px; }
+    .doc-type { color: var(--accent); font-size: 12px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 6px; }
+    .doc-number { color: var(--text); font-size: 24px; font-weight: 700; letter-spacing: -0.3px; }
+    .doc-date { color: var(--text-muted); font-size: 11px; margin-top: 4px; }
 
-    /* Badge de statut : juste un contour, pas d'aplat de couleur */
-    .doc-status {
-      display: inline-block; margin-top: 6px; padding: 2px 10px; border-radius: 3px;
-      font-size: 9px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
-      border: 1px solid var(--text);
-      color: var(--text);
-    }
-
-    .header-stripe { height: 3px; background: var(--accent); }
-
-    /* ── META BAND : fond blanc, filet inférieur uniquement ──
+    /* ── META BAND : fond gris clair, deux colonnes ──
        display:table (et non grid : mal supporté par DomPDF, cause un
-       décalage vertical entre les colonnes) pour garantir que les blocs
-       Client et Date/Vente démarrent exactement à la même hauteur. */
+       décalage vertical entre les colonnes). */
     .meta-band {
       display: table;
       table-layout: fixed;
       width: 100%;
-      padding: 18px 32px;
-      border-bottom: 1px solid var(--line);
+      padding: 16px 32px;
+      background: var(--band-bg);
     }
 
-    .meta-block { display: table-cell; vertical-align: top; width: 58%; padding-right: 20px; }
-    .meta-block h4 { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+    .meta-block { display: table-cell; vertical-align: top; width: 55%; }
+    .meta-block h4 { font-size: 10px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
     .meta-block p { color: var(--text); font-size: 13px; line-height: 1.6; }
-    .meta-block .name { font-size: 14px; font-weight: 700; color: var(--text); }
-    .meta-block.right { width: 41%; text-align: right; padding-left: 20px; padding-right: 0; border-left: 1px solid var(--line); }
+    .meta-block .name { font-size: 14px; font-weight: 700; color: var(--text); text-transform: uppercase; }
 
-    /* Date : simple encadré, plus de pastille pleine */
-    .date-badge {
-      display: inline-flex; flex-direction: column; align-items: center;
-      border: 1px solid var(--line); border-radius: 6px; padding: 6px 14px; min-width: 76px;
+    .meta-block.right { width: 45%; }
+    .meta-row { display: table; width: 100%; margin-bottom: 8px; }
+    .meta-row:last-child { margin-bottom: 0; }
+    .meta-row .meta-row-label { display: table-cell; font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); vertical-align: middle; }
+    .meta-row .meta-row-value { display: table-cell; text-align: right; font-size: 13px; font-weight: 700; color: var(--text); vertical-align: middle; }
+
+    .status-pill {
+      display: inline-block; padding: 4px 14px; border-radius: 4px;
+      font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase;
+      background: var(--accent); color: #fff;
     }
-    .date-badge .day { font-size: 18px; font-weight: 700; line-height: 1.1; color: var(--text); }
-    .date-badge .month { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; color: var(--text-muted); }
-    .date-badge .year { font-size: 10px; color: var(--text-muted); }
 
-    /* ── ITEMS TABLE (facture vente) — sans fond, lignes fines ── */
-    .items-section { padding: 0 32px 8px; }
+    /* ── ITEMS TABLE — en-tête sombre, colonne quantité surlignée ── */
+    .items-section { padding: 18px 32px 0; }
 
-    .items-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
-    .items-table thead tr { border-bottom: 2px solid var(--text); }
+    /* Couleurs en hex brut (pas de var()) dans ce bloc : DomPDF ne résout
+       pas les variables CSS sur les vraies balises <th>/<td> (testé et
+       confirmé — le fond restait invisible), alors qu'il le fait très bien
+       sur les <div> en display:table-cell utilisées ailleurs dans ce
+       document. */
+    .items-table { width: 100%; border-collapse: collapse; }
     .items-table thead th {
-      padding: 8px 10px; font-size: 9.5px; font-weight: 700; letter-spacing: 1px;
-      text-transform: uppercase; color: var(--text); text-align: left;
+      background: #14283f; color: #fff;
+      padding: 10px 12px; font-size: 10px; font-weight: 700; letter-spacing: 1px;
+      text-transform: uppercase; text-align: left;
     }
-    .items-table thead th.num    { text-align: center; }
+    .items-table thead th.num    { text-align: center; background: #4c7ab5; }
     .items-table thead th.amount { text-align: right; }
 
-    .items-table tbody tr { border-bottom: 1px solid var(--line-light); }
-    .items-table tbody td { padding: 9px 10px; color: var(--text); vertical-align: middle; }
-    .items-table tbody td.desc { font-weight: 500; }
-    .items-table tbody td.desc small { display: block; font-size: 11px; color: var(--text-muted); font-weight: 400; }
+    .items-table tbody tr { border-bottom: 1px solid #e3e5ec; }
+    .items-table tbody td { padding: 12px; color: #1a1a2e; vertical-align: top; }
+    .items-table tbody td.desc { font-weight: 700; }
+    .items-table tbody td.desc small { display: block; font-size: 11px; color: #5b6479; font-weight: 400; margin-top: 2px; }
     .items-table tbody td.qty   { text-align: center; }
     .items-table tbody td.unit  { text-align: right; }
     .items-table tbody td.total { text-align: right; font-weight: 700; }
 
-    .qty-badge { display: inline-block; border: 1px solid var(--line); border-radius: 4px; padding: 1px 8px; font-size: 12px; font-weight: 600; }
-
     /* ── ÉCHANGE : PRODUITS — cartes en simple encadré ── */
-    .exchange-section { padding: 22px 32px 8px; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: stretch; }
+    .exchange-section { padding: 24px 32px 0; display: grid; grid-template-columns: 1fr auto 1fr; gap: 16px; align-items: stretch; }
 
     .exchange-card { border: 1px solid var(--line); border-radius: 6px; padding: 14px; }
-    .exchange-card h4 { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
+    .exchange-card h4 { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 8px; }
     .exchange-card .product-name { font-size: 14px; font-weight: 700; color: var(--text); margin-bottom: 4px; }
     .exchange-card .product-ref { font-size: 11px; color: var(--text-muted); margin-bottom: 10px; }
     .exchange-card .value-row { display: flex; justify-content: space-between; align-items: center; border-top: 1px solid var(--line-light); padding-top: 8px; }
@@ -155,68 +147,50 @@
     .items-list .item-row { display: flex; justify-content: space-between; font-size: 12px; color: var(--text); padding: 2px 0; }
     .items-list .item-row .qty { color: var(--text-muted); }
 
-    /* ── TOTAUX ──
-       Même bloc pour le « Total final » (vente) et le « Montant ajouté par le
-       client » (échange) : un simple encadré à double filet, sans aplat. */
-    .totals-row { display: flex; justify-content: flex-end; padding: 12px 32px 8px; }
+    /* ── TOTAUX — plats, sans encadré, alignés à droite ── */
+    .totals-row { display: flex; justify-content: flex-end; padding: 14px 32px 0; }
     .totals-box { width: 290px; }
 
-    .totals-line { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px solid var(--line-light); font-size: 13px; color: var(--text-muted); }
-    .totals-line:last-of-type { border-bottom: none; }
-    .totals-line .label { font-weight: 500; }
+    .totals-line { display: flex; justify-content: space-between; padding: 5px 0; font-size: 13px; color: var(--text-muted); }
     .totals-line .val   { font-weight: 600; color: var(--text); }
 
-    .totals-grand {
-      display: flex; justify-content: space-between; align-items: center;
-      border-top: 2px solid var(--text); border-bottom: 2px solid var(--text);
-      padding: 10px 4px; margin-top: 8px;
-    }
-    .totals-grand .label { font-size: 11px; letter-spacing: 1px; text-transform: uppercase; color: var(--text); }
-    .totals-grand .val   { font-size: 18px; font-weight: 700; color: var(--text); }
+    .totals-grand { display: flex; justify-content: space-between; align-items: center; padding: 8px 0 0; margin-top: 4px; }
+    .totals-grand .label { font-size: 15px; font-weight: 700; color: var(--text); }
+    .totals-grand .val   { font-size: 19px; font-weight: 700; color: var(--text); }
 
-    /* ── MONTANT EN LETTRES — filet gauche, pas de fond ── */
+    /* ── MONTANT EN LETTRES ── */
     .amount-words {
-      margin: 8px 32px 0; border-left: 2px solid var(--text);
-      padding: 6px 14px; font-size: 11.5px; color: var(--text-muted);
+      margin: 14px 32px 0; padding: 10px 14px 0; border-top: 1px solid var(--line-light);
+      font-size: 11.5px; color: var(--text-muted);
     }
     .amount-words span { font-weight: 700; color: var(--text); }
 
     /* ── SIGNATURE / CACHET — espace réservé pour la validation manuscrite,
        occupe l'espace en flux normal (pas de min-height forcé : DomPDF gère
-       mal cette technique et recrée la page vide constatée précédemment). */
+       mal cette technique et recrée une page vide). */
     .signature-section {
       display: table; width: 100%; table-layout: fixed;
-      padding: 0 32px; margin-top: 110px;
+      padding: 0 32px; margin-top: 270px;
     }
     .signature-col { display: table-cell; width: 50%; vertical-align: bottom; padding-right: 24px; }
     .signature-col:last-child { padding-right: 0; padding-left: 24px; }
     .signature-line { border-top: 1px solid var(--line); margin-bottom: 6px; height: 1px; }
-    .signature-col p { font-size: 10.5px; color: var(--text-muted); text-align: center; text-transform: uppercase; letter-spacing: .5px; }
+    .signature-col p { font-size: 11px; color: var(--text-muted); text-align: center; }
 
-    /* ── REMARQUES / CONDITIONS — simple encadré ── */
-    .remarks-section { padding: 10px 32px; }
+    /* ── BLOC BAS DE PAGE — un seul encadré : garantie + conditions puis,
+       juste en dessous (sans filet supplémentaire), la ligne de contact.
+       Un seul filet supérieur pour tout le bloc, comme sur le modèle de
+       référence (conditions de paiement + contact réunis). ── */
+    .bottom-section { margin-top: 22px; padding: 16px 32px 14px; border-top: 1px solid var(--line); }
 
-    .info-card { border: 1px solid var(--line); border-radius: 6px; padding: 10px 14px; }
-    .info-card h4 { font-size: 9px; font-weight: 700; letter-spacing: 1.5px; text-transform: uppercase; color: var(--text-muted); margin-bottom: 8px; }
-    .info-card p { font-size: 13px; color: var(--text); font-weight: 600; }
-    .remarks-text { font-size: 11px; color: var(--text-muted); line-height: 1.6; }
-    .info-card__group + .info-card__group { margin-top: 10px; padding-top: 10px; border-top: 1px solid var(--line-light); }
+    .conditions-group + .conditions-group { margin-top: 12px; }
+    .conditions-group h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
+    .conditions-group p { font-size: 11.5px; color: var(--text-muted); line-height: 1.6; }
+    .conditions-group p strong { color: var(--text); }
 
-    /* ── FOOTER ──
-       Fond blanc, simple filet supérieur, en flux normal juste après le
-       contenu. DomPDF gère mal l'ancrage au bas de page (position:absolute
-       et position:fixed cassent tous les deux la pagination ou masquent le
-       pied de page dès que le document est court) : le flux normal est la
-       seule option fiable ici. */
-    .footer {
-      margin-top: 14px;
-      border-top: 1px solid var(--text);
-      padding: 14px 32px;
-      width: 100%;
-      display: table;
-    }
-    .footer-contact { display: table-cell; vertical-align: middle; text-align: left; color: var(--text-muted); font-size: 11px; line-height: 1.7; }
-    .footer-thanks { display: table-cell; vertical-align: middle; text-align: right; color: var(--text); font-size: 13px; font-weight: 700; }
+    .footer-line { margin-top: 16px; font-size: 11.5px; color: var(--text-muted); text-align: center; }
+    .footer-line strong { color: var(--text); font-weight: 700; }
+    .footer-legal { font-size: 9.5px; color: var(--text-muted); margin-top: 4px; text-align: center; }
 
     @media print {
       html, body { margin: 0; padding: 0; background: #fff; }
@@ -229,6 +203,17 @@
       .page { box-shadow: 0 4px 30px rgba(30,58,95,0.10); border-radius: 4px; }
     }
   </style>
+  @if(empty($isPdf))
+    {{-- Réservé à l'aperçu navigateur — jamais envoyé à DomPDF, qui gère
+         mal min-height et position:absolute sur un pied de page (page
+         vide en trop constatée précédemment). Un vrai navigateur, lui,
+         n'a pas ce problème de pagination : le footer peut donc être
+         collé au bas de .page sans risque ici. --}}
+    <style>
+      .page { min-height: 297mm; padding-bottom: 160px; }
+      .bottom-section { position: absolute; left: 0; right: 0; bottom: 0; margin-top: 0; }
+    </style>
+  @endif
 </head>
 <body>
 
@@ -262,48 +247,43 @@
 @endif
 
 <div class="page">
+  <div class="top-stripe"></div>
 
   {{-- ── EN-TÊTE ── --}}
-  <div class="header">
-    <div class="header-inner">
-      <div class="brand">
-        <div class="brand-row">
-          <div class="brand-icon">
-            <img src="{{ $logoSrc }}" alt="Mboup Gaming">
-          </div>
-          <div>
-            <div class="brand-name">Mboup Gaming</div>
-            <div class="brand-sub">Système d'information</div>
-          </div>
+  <div class="header-inner">
+    <div class="brand">
+      <div class="brand-row">
+        <div class="brand-icon">
+          <img src="{{ $logoSrc }}" alt="Mboup Gaming">
+        </div>
+        <div>
+          <div class="brand-name">Mboup Gaming</div>
+          <div class="brand-sub">Système d'information</div>
         </div>
       </div>
-      <div class="header-doc">
-        <div class="doc-type">{{ $documentType }}</div>
-        <div class="doc-number">{{ $documentNumber }}</div>
-        @if(!$isEchange && $invoice)
-          <span class="doc-status {{ 'status-' . $invoice->status->value }}">
-            {{ $invoice->status->label() }}
-          </span>
-        @endif
-      </div>
+    </div>
+    <div class="header-doc">
+      <div class="doc-type">{{ $documentType }}</div>
+      <div class="doc-number">#{{ $documentNumber }}</div>
+      @php $headerDate = $isEchange ? $sale->sale_date : ($invoice->issued_at ?? $sale->sale_date); @endphp
+      <div class="doc-date">{{ $headerDate->locale('fr')->translatedFormat('d F Y') }}</div>
     </div>
   </div>
-  <div class="header-stripe"></div>
 
   {{-- ── MÉTA : Client / Dates ── --}}
   <div class="meta-band">
     <div class="meta-block">
-      <h4>Client</h4>
+      <h4>{{ $isEchange ? 'Client' : 'Facturé à' }}</h4>
       @if($sale->customer)
         <p class="name">{{ $sale->customer->full_name }}</p>
+        @if(!$isEchange && $sale->customer->address)
+          <p>{{ $sale->customer->address }}</p>
+        @endif
         @if($sale->customer->phone)
-          <p>Tél. : {{ $sale->customer->phone }}</p>
+          <p>{{ $sale->customer->phone }}</p>
         @endif
         @if(!$isEchange && $sale->customer->email)
-          <p>Email : {{ $sale->customer->email }}</p>
-        @endif
-        @if(!$isEchange && $sale->customer->address)
-          <p>Adresse : {{ $sale->customer->address }}</p>
+          <p>{{ $sale->customer->email }}</p>
         @endif
       @else
         <p class="name">Client anonyme</p>
@@ -311,16 +291,22 @@
     </div>
 
     <div class="meta-block right">
-      <h4>Date</h4>
       @php $metaDate = $isEchange ? $sale->sale_date : ($invoice->issued_at ?? $sale->sale_date); @endphp
-      <div class="date-badge" style="margin-left:auto;">
-        <span class="day">{{ $metaDate->format('d') }}</span>
-        <span class="month">{{ $metaDate->translatedFormat('M') }}</span>
-        <span class="year">{{ $metaDate->format('Y') }}</span>
+      <div class="meta-row">
+        <span class="meta-row-label">Date</span>
+        <span class="meta-row-value">{{ $metaDate->locale('fr')->translatedFormat('d M Y') }}</span>
       </div>
       @if(!$isEchange)
-        <h4 style="margin-top:14px;">Vente associée</h4>
-        <p style="font-weight:600;color:#1e3a5f;">{{ $sale->sale_number }}</p>
+        <div class="meta-row">
+          <span class="meta-row-label">Vente associée</span>
+          <span class="meta-row-value">{{ $sale->sale_number }}</span>
+        </div>
+      @endif
+      @if($invoice)
+        <div class="meta-row">
+          <span class="meta-row-label">Statut</span>
+          <span class="meta-row-value"><span class="status-pill">{{ $invoice->status->label() }}</span></span>
+        </div>
       @endif
     </div>
   </div>
@@ -363,6 +349,14 @@
                 @if($item->productImei)
                   <br><small>IMEI : {{ $item->productImei->imei }}</small>
                 @endif
+                @if($sale->warranty_duration && $sale->warranty_duration->value !== 'none')
+                  <br><small>
+                    Garantie : {{ $sale->warranty_duration->label() }}
+                    @if($sale->warranty_end_date)
+                      — valable jusqu'au {{ $sale->warranty_end_date->format('d/m/Y') }}
+                    @endif
+                  </small>
+                @endif
               </span>
               <span class="qty">x{{ $item->quantity }}</span>
             </div>
@@ -382,7 +376,7 @@
     <div class="totals-row">
       <div class="totals-box">
         <div class="totals-grand">
-          <span class="label">Montant ajouté par le client</span>
+          <span class="label">Montant ajouté</span>
           <span class="val">{{ number_format($addedAmount, 0, ',', ' ') }} FCFA</span>
         </div>
         @if($invoice && !$invoice->isFullyPaid())
@@ -403,30 +397,36 @@
       <table class="items-table">
         <thead>
           <tr>
-            <th style="width:5%;text-align:center;">#</th>
-            <th style="width:45%;text-align:left;">Désignation</th>
-            <th class="num" style="width:15%;">Qté</th>
-            <th class="amount" style="width:17%;">P. Unitaire</th>
+            <th style="width:50%;text-align:left;">Désignation</th>
+            <th class="num" style="width:15%;">Quantité</th>
+            <th class="amount" style="width:17%;">P.U.</th>
             <th class="amount" style="width:18%;">Total</th>
           </tr>
         </thead>
         <tbody>
-          @forelse($sale->items as $index => $item)
+          @forelse($sale->items as $item)
             <tr>
-              <td style="text-align:center;color:#8a97ab;font-size:11px;">{{ str_pad($index + 1, 2, '0', STR_PAD_LEFT) }}</td>
               <td class="desc">
                 {{ $item->product?->name ?? '—' }}
                 @if($item->productImei)
-                  <small>IMEI : {{ $item->productImei->imei }}</small>
+                  <small>S/N : {{ $item->productImei->imei }}</small>
+                @endif
+                @if($sale->warranty_duration && $sale->warranty_duration->value !== 'none')
+                  <small>
+                    Garantie : {{ $sale->warranty_duration->label() }}
+                    @if($sale->warranty_end_date)
+                      — valable jusqu'au {{ $sale->warranty_end_date->format('d/m/Y') }}
+                    @endif
+                  </small>
                 @endif
               </td>
-              <td class="qty"><span class="qty-badge">{{ $item->quantity }}</span></td>
-              <td class="unit">{{ number_format($item->unit_price, 0, ',', ' ') }} FCFA</td>
-              <td class="total">{{ number_format($item->line_total ?? ($item->quantity * $item->unit_price), 0, ',', ' ') }} FCFA</td>
+              <td class="qty">{{ $item->quantity }}</td>
+              <td class="unit">{{ number_format($item->unit_price, 0, ',', ' ') }} F CFA</td>
+              <td class="total">{{ number_format($item->line_total ?? ($item->quantity * $item->unit_price), 0, ',', ' ') }} F CFA</td>
             </tr>
           @empty
             <tr>
-              <td colspan="5" style="text-align:center;padding:30px;color:#8a97ab;">Aucun article</td>
+              <td colspan="4" style="text-align:center;padding:30px;color:var(--text-muted);">Aucun article</td>
             </tr>
           @endforelse
         </tbody>
@@ -443,26 +443,26 @@
         @endphp
         <div class="totals-line">
           <span class="label">Sous-total</span>
-          <span class="val">{{ number_format($subtotal, 0, ',', ' ') }} FCFA</span>
+          <span class="val">{{ number_format($subtotal, 0, ',', ' ') }} F CFA</span>
         </div>
         @if($discount > 0)
           <div class="totals-line">
             <span class="label">Remise</span>
-            <span class="val">-{{ number_format($discount, 0, ',', ' ') }} FCFA</span>
+            <span class="val">-{{ number_format($discount, 0, ',', ' ') }} F CFA</span>
           </div>
         @endif
         <div class="totals-grand">
-          <span class="label">Total final</span>
-          <span class="val">{{ number_format($total, 0, ',', ' ') }} FCFA</span>
+          <span class="label">Total Net</span>
+          <span class="val">{{ number_format($total, 0, ',', ' ') }} F CFA</span>
         </div>
         @if($invoice && !$invoice->isFullyPaid())
           <div class="totals-line">
             <span class="label">Payé</span>
-            <span class="val">{{ number_format($invoice->amount_paid, 0, ',', ' ') }} FCFA</span>
+            <span class="val">{{ number_format($invoice->amount_paid, 0, ',', ' ') }} F CFA</span>
           </div>
           <div class="totals-line">
             <span class="label">Reste à payer</span>
-            <span class="val">{{ number_format($invoice->remaining_amount, 0, ',', ' ') }} FCFA</span>
+            <span class="val">{{ number_format($invoice->remaining_amount, 0, ',', ' ') }} F CFA</span>
           </div>
         @endif
       </div>
@@ -486,45 +486,30 @@
     </div>
   </div>
 
-  {{-- ── GARANTIE + REMARQUES / CONDITIONS ── un seul encadré, deux groupes
-       séparés par un filet léger quand la garantie est présente. --}}
-  <div class="remarks-section">
-    <div class="info-card">
-      @if($sale->warranty_duration && $sale->warranty_duration->value !== 'none')
-        <div class="info-card__group">
-          <h4>Garantie</h4>
-          <p style="font-size:13px;color:var(--text);font-weight:600;margin-bottom:2px;">{{ $sale->warranty_duration->label() }}</p>
-          @if($sale->warranty_end_date)
-            <p class="remarks-text">Valable jusqu'au {{ $sale->warranty_end_date->format('d/m/Y') }}</p>
-          @endif
-        </div>
-      @endif
-      <div class="info-card__group">
-        <h4>Remarques / Conditions</h4>
-        <p class="remarks-text">
-          @php $remarksText = $invoice?->notes ?? $sale->notes; @endphp
-          @if($remarksText)
-            {{ $remarksText }}
-          @else
-            Le service après-vente peut durer une semaine maximum si la garantie n'a pas expiré. Nous ne remboursons pas — nous réparons ou remplaçons.
-          @endif
-        </p>
-      </div>
+  {{-- ── CONDITIONS + CONTACT ── un seul bloc, comme sur le modèle de
+       référence. La garantie est affichée sous chaque produit dans le
+       tableau des articles (ou la liste des produits remis pour un
+       échange), plus au bon endroit ici. --}}
+  <div class="bottom-section">
+    <div class="conditions-group">
+      <h4>Conditions</h4>
+      <p>
+        @php $remarksText = $invoice?->notes ?? $sale->notes; @endphp
+        @if($remarksText)
+          {{ $remarksText }}
+        @else
+          Le service après-vente peut durer une semaine maximum si la garantie n'est pas expiré. Nous ne remboursons pas — nous réparons ou remplaçons.
+        @endif
+      </p>
     </div>
-  </div>
 
-  {{-- ── PIED DE PAGE ──
-       Identique sur toutes les factures de vente et tous les bons d'échange
-       (aperçu, impression, PDF téléchargé). Aucune date/heure de génération. --}}
-  <div class="footer">
-    <div class="footer-contact">
-      <div>Email : {{ config('company.email') }}</div>
-      <div>Tél. : {{ config('company.phone') }}</div>
-      <div>Adresse : {{ config('company.address_line1') }}, {{ config('company.address_line2') }}</div>
-      <div>Ninea : {{ config('company.ninea') }} — RC : {{ config('company.rc') }}</div>
+    <div class="footer-line">
+      Tél : <strong>{{ config('company.phone') }}</strong>
+      &nbsp;&nbsp;·&nbsp;&nbsp;Email : {{ config('company.email') }}
+      &nbsp;&nbsp;·&nbsp;&nbsp;{{ config('company.address_line1') }}, {{ config('company.address_line2') }}
     </div>
-    <div class="footer-thanks">
-      <strong>Merci de votre confiance</strong>
+    <div class="footer-legal">
+      Ninea : {{ config('company.ninea') }} — RC : {{ config('company.rc') }}
     </div>
   </div>
 

@@ -127,7 +127,10 @@ class InvoiceService
         $isPdf = true;
 
         $pdf = PDF::loadView('documents.sale_document', compact('sale', 'invoice', 'downloadUrl', 'isPdf'))
-            ->setPaper('a4', 'portrait')
+            // Dimensions exactes du gabarit de référence (Gap's Apple), en
+            // points PDF : 595.92 x 842.88 — quasi identique au A4 standard
+            // (595.28 x 841.89) à moins d'1mm près.
+            ->setPaper([0, 0, 595.92, 842.88], 'portrait')
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('isHtml5ParserEnabled', true);
 

@@ -197,7 +197,9 @@ class QuoteService
         $quote->loadMissing(['customer', 'items.product']);
 
         $pdf = PDF::loadView('documents.quote_document', ['quote' => $quote, 'downloadUrl' => null, 'isPdf' => true])
-            ->setPaper('a4', 'portrait')
+            // Voir InvoiceService::renderPdfContent() : dimensions exactes
+            // du gabarit de référence (Gap's Apple).
+            ->setPaper([0, 0, 595.92, 842.88], 'portrait')
             ->setOption('defaultFont', 'DejaVu Sans')
             ->setOption('isHtml5ParserEnabled', true);
 
