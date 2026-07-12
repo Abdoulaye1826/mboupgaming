@@ -430,6 +430,49 @@
     </div>
   </div>
 </div>
+
+<div class="row g-3 mt-1">
+  <div class="col-lg-4">
+    <div class="chart-card h-100">
+      <div class="card-title"><i class="bi bi-arrow-left-right me-2"></i>Ventes vs Échanges</div>
+      <canvas id="salesTypeChart" height="260"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-8">
+    <div class="table-card h-100">
+      <div class="p-3 border-bottom d-flex align-items-center justify-content-between gap-2 flex-wrap">
+        <h6 class="mb-0 fw-semibold"><i class="bi bi-trophy me-2"></i>Produits les plus vendus</h6>
+        <input type="text" class="form-control form-control-sm table-filter" style="max-width: 160px;" data-target="topProductsTable" placeholder="Filtrer...">
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0" id="topProductsTable" data-sortable>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Produit</th>
+              <th class="text-center" data-sort="number">Qté vendue <i class="bi bi-arrow-down-up small text-muted"></i></th>
+              <th class="text-end" data-sort="number">Montant <i class="bi bi-arrow-down-up small text-muted"></i></th>
+            </tr>
+          </thead>
+          <tbody>
+            @forelse($topProducts as $index => $product)
+              <tr>
+                <td>{{ $index + 1 }}</td>
+                <td>{{ $product->name }}</td>
+                <td class="text-center" data-value="{{ $product->total_qty }}"><span class="badge bg-primary">{{ $product->total_qty }}</span></td>
+                <td class="text-end" data-value="{{ $product->total_amount }}">{{ number_format($product->total_amount, 0, ',', ' ') }} FCFA</td>
+              </tr>
+            @empty
+              <tr class="empty-row">
+                <td colspan="4" class="text-center text-muted py-4">Aucune vente enregistrée</td>
+              </tr>
+            @endforelse
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @push('scripts')
@@ -510,6 +553,32 @@
       datasets: [{
         data: categoryData.length ? categoryData : [1],
         backgroundColor: categoryLabels.length ? categoryColors.slice(0, categoryLabels.length) : ['#e2e8f0'],
+        borderWidth: 2,
+        borderColor: '#fff',
+        hoverOffset: 8,
+      }]
+    },
+    options: {
+      ...chartDefaults,
+      cutout: '68%',
+      plugins: {
+        legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } },
+        centerText: { enabled: true, label: 'Ventes' }
+      }
+    }
+  });
+
+  // ---------- Ventes vs Échanges ----------
+  const typeLabels = @json($salesTypeBreakdown['labels']);
+  const typeData = @json($salesTypeBreakdown['data']);
+
+  new Chart(document.getElementById('salesTypeChart'), {
+    type: 'doughnut',
+    data: {
+      labels: typeLabels,
+      datasets: [{
+        data: typeData.some(v => v > 0) ? typeData : [1, 0],
+        backgroundColor: ['#1e3a5f', '#fd7e14'],
         borderWidth: 2,
         borderColor: '#fff',
         hoverOffset: 8,

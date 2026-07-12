@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\InvoiceStatus;
+use App\Enums\PaymentMethod;
 use App\Models\Customer;
 use App\Models\Invoice;
 use App\Models\Sale;
@@ -12,8 +13,10 @@ use Illuminate\Support\Facades\DB;
 
 class InvoiceService
 {
-    public function __construct(private readonly ActivityLogService $activityLog)
-    {
+    public function __construct(
+        private readonly ActivityLogService $activityLog,
+        private readonly PaymentService $paymentService,
+    ) {
     }
 
     public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
@@ -149,6 +152,26 @@ class InvoiceService
         if (!empty($data['sale_id'])) {
             $sale = Sale::find($data['sale_id']);
             $data['customer_id'] = $sale?->customer_id;
+        }
+
+        // Si on bascule le statut sur "Payée" sans passer par le formulaire
+        // de paiement, on enregistre automatiquement un paiement en espèces
+        // pour le reste dû — évite d'obliger un aller-retour manuel dans la
+        // rubrique Paiement pour un cas aussi courant en boutique.
+        if (
+            ($data['status'] ?? null) === InvoiceStatus::Paid->value
+            && $invoice->status !== InvoiceStatus::Cancelled
+            && !$invoice->isFullyPaid()
+        ) {
+            $remaining = $invoice->remaining_amount;
+
+            if ($remaining > 0.01) {
+                $this->paymentService->store($invoice, [
+                    'amount' => $remaining,
+                    'method' => PaymentMethod::Cash->value,
+                    'paid_at' => now()->toDateString(),
+                ], auth()->id());
+            }
         }
 
         $invoice->update($data);

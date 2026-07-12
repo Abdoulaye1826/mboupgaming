@@ -409,6 +409,79 @@ a:focus-visible, button:focus-visible, input:focus-visible, .nav-link:focus-visi
     .kpi-card--hero .kpi-hero__icon { width: 64px; height: 64px; font-size: 1.75rem; }
 }
 
+/* ── Actions rapides (dashboard) ─────────────────────────── */
+.quick-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .75rem;
+}
+
+.quick-action-btn {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex: 1 1 200px;
+    padding: .9rem 1.1rem;
+    border-radius: 12px;
+    background: var(--card);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-weight: 600;
+    font-size: .9rem;
+    text-decoration: none;
+    transition: box-shadow .2s, transform .2s, border-color .2s;
+}
+
+.quick-action-btn i {
+    font-size: 1.25rem;
+    color: var(--copper);
+    flex-shrink: 0;
+}
+
+.quick-action-btn:hover {
+    box-shadow: 0 8px 20px rgba(16, 24, 43, .08);
+    transform: translateY(-2px);
+    border-color: var(--copper);
+    color: var(--text);
+}
+
+.quick-action-btn--primary {
+    background: var(--copper);
+    border-color: var(--copper);
+    color: #fff;
+}
+
+.quick-action-btn--primary i { color: #fff; }
+
+.quick-action-btn--primary:hover {
+    background: var(--copper-dark);
+    border-color: var(--copper-dark);
+    color: #fff;
+}
+
+/* Variantes secondaires — teinte légère (fond pastel), pas de fond plein
+   comme le bouton principal "Nouvelle vente". */
+.quick-action-btn--info {
+    background: var(--blue-soft);
+    border-color: transparent;
+}
+.quick-action-btn--info i { color: var(--circuit-blue); }
+.quick-action-btn--info:hover { border-color: var(--circuit-blue); }
+
+.quick-action-btn--warning {
+    background: var(--warning-soft);
+    border-color: transparent;
+}
+.quick-action-btn--warning i { color: var(--warning); }
+.quick-action-btn--warning:hover { border-color: var(--warning); }
+
+.quick-action-btn--success {
+    background: var(--success-soft);
+    border-color: transparent;
+}
+.quick-action-btn--success i { color: var(--success); }
+.quick-action-btn--success:hover { border-color: var(--success); }
+
 .kpi-card .kpi-label {
     font-size: 0.75rem;
     color: var(--text-muted);

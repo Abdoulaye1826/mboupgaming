@@ -24,12 +24,8 @@ class DashboardController extends Controller
             'isCashier' => $isCashier,
             'stats' => $this->dashboardService->getStats($period),
             'salesEvolution' => $this->dashboardService->getSalesEvolution($period),
-            'salesByCategory' => $this->dashboardService->getSalesByCategory($period),
-            'topProducts' => $this->dashboardService->getTopProducts(5, $period),
-            'salesByUser' => $this->dashboardService->getSalesByUser(5, $period),
             'recentInvoices' => $this->dashboardService->getRecentInvoices(),
             'stockAlerts' => $this->dashboardService->getStockAlerts(),
-            'salesTypeBreakdown' => $this->dashboardService->getSalesTypeBreakdown($period),
         ];
 
         if ($request->ajax()) {
@@ -38,8 +34,6 @@ class DashboardController extends Controller
                 'tablesHtml' => view('dashboard.partials.tables', $data)->render(),
                 'charts' => [
                     'salesEvolution' => $data['salesEvolution'],
-                    'salesByCategory' => $data['salesByCategory'],
-                    'salesTypeBreakdown' => $data['salesTypeBreakdown'],
                 ],
                 'period' => [
                     'key' => $period->key,
