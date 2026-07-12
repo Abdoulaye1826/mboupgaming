@@ -90,14 +90,17 @@
     destroyCharts();
 
     if (!isCashier) {
-      const evo = data.salesEvolution;
+      // On ne garde que les 15 derniers points (jours) plutôt que tout le
+      // mois, pour un graphique plus lisible sur le tableau de bord.
+      const evoLabels = data.salesEvolution.labels.slice(-15);
+      const evoRevenue = data.salesEvolution.revenue.slice(-15);
       charts.revenueEvolution = new Chart(document.getElementById('revenueEvolutionChart'), {
         type: 'line',
         data: {
-          labels: evo.labels,
+          labels: evoLabels,
           datasets: [{
             label: 'CA (FCFA)',
-            data: evo.revenue,
+            data: evoRevenue,
             borderColor: '#14283f',
             backgroundColor: 'rgba(20, 40, 63, 0.12)',
             fill: true,

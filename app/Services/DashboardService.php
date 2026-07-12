@@ -192,7 +192,11 @@ class DashboardService
     public function getSalesEvolution(DashboardPeriod $period): array
     {
         $start = $period->start;
-        $end = $period->end;
+        // Ne jamais dépasser aujourd'hui : pour une période "Ce mois", la fin
+        // de période est le dernier jour du mois (souvent dans le futur), ce
+        // qui décalait le graphique vers des jours à venir sans donnée au
+        // lieu de s'arrêter sur la date du jour.
+        $end = $period->end->min(now());
         $spanDays = $start->diffInDays($end);
 
         if ($spanDays <= 1) {
@@ -200,6 +204,13 @@ class DashboardService
         }
 
         if ($spanDays <= 62) {
+            // Toujours au moins 15 jours affichés, même en tout début de
+            // mois (ex. le 4) : on remonte avant le début de la période si
+            // besoin, jusqu'à aujourd'hui inclus.
+            if ($spanDays < 14) {
+                $start = $end->copy()->subDays(14);
+            }
+
             return $this->salesEvolutionDaily($start, $end);
         }
 
