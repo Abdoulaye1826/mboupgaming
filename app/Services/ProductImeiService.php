@@ -3,8 +3,10 @@
 namespace App\Services;
 
 use App\Enums\ImeiStatus;
+use App\Enums\StockMovementType;
 use App\Models\Product;
 use App\Models\ProductImei;
+use App\Models\StockMovement;
 use Illuminate\Support\Facades\DB;
 
 /**
@@ -49,6 +51,8 @@ class ProductImeiService
 
         return DB::transaction(function () use ($product, $imeis) {
             $created = [];
+            $quantityBefore = $product->stock_quantity;
+
             foreach ($imeis as $imei) {
                 $created[] = ProductImei::create([
                     'product_id' => $product->id,
@@ -58,6 +62,20 @@ class ProductImeiService
             }
 
             $product->syncImeiStock();
+
+            // Un mouvement par IMEI ajouté, pour rester cohérent avec la
+            // traçabilité unité par unité utilisée pour les ventes/retours.
+            foreach ($created as $index => $imeiModel) {
+                StockMovement::create([
+                    'product_id' => $product->id,
+                    'user_id' => auth()->id(),
+                    'type' => StockMovementType::Entry,
+                    'quantity' => 1,
+                    'quantity_before' => $quantityBefore + $index,
+                    'quantity_after' => $quantityBefore + $index + 1,
+                    'reason' => "Ajout IMEI {$imeiModel->imei}",
+                ]);
+            }
 
             $this->activityLog->log(
                 'create',
@@ -75,11 +93,25 @@ class ProductImeiService
             throw new \RuntimeException("Impossible de supprimer un IMEI {$imei->status->label()}.");
         }
 
-        $product = $imei->product;
-        $imeiValue = $imei->imei;
-        $imei->delete();
-        $product->syncImeiStock();
+        DB::transaction(function () use ($imei) {
+            $product = $imei->product;
+            $imeiValue = $imei->imei;
+            $quantityBefore = $product->stock_quantity;
 
-        $this->activityLog->log('delete', null, "IMEI supprimé : {$imeiValue} ({$product->name})");
+            $imei->delete();
+            $product->syncImeiStock();
+
+            StockMovement::create([
+                'product_id' => $product->id,
+                'user_id' => auth()->id(),
+                'type' => StockMovementType::Exit,
+                'quantity' => 1,
+                'quantity_before' => $quantityBefore,
+                'quantity_after' => $product->fresh()->stock_quantity,
+                'reason' => "Retrait IMEI {$imeiValue}",
+            ]);
+
+            $this->activityLog->log('delete', null, "IMEI supprimé : {$imeiValue} ({$product->name})");
+        });
     }
 }

@@ -82,8 +82,28 @@
           </div>
           <div class="detail-stat">
             <div class="detail-stat__label"><i class="bi bi-boxes"></i>Stock</div>
-            <div class="detail-stat__value {{ $product->isOutOfStock() ? 'text-danger' : '' }}">
-              {{ $product->stock_quantity }} <span class="text-muted" style="font-size:.75rem;">/ min {{ $product->minimum_stock }}</span>
+            <div class="detail-stat__value {{ $product->isOutOfStock() ? 'text-danger' : '' }} d-flex align-items-center gap-2 flex-wrap">
+              <span id="stockQuantityDisplay">{{ $product->stock_quantity }}</span>
+              <span class="text-muted" style="font-size:.75rem;">/ min {{ $product->minimum_stock }}</span>
+              @if($product->tracks_imei)
+                <div class="btn-group btn-group-sm" role="group">
+                  <button type="button" class="btn btn-outline-success" data-bs-toggle="modal" data-bs-target="#imeiAddModal" title="Ajouter un IMEI">
+                    <i class="bi bi-plus-lg"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-danger" data-bs-toggle="modal" data-bs-target="#imeiRemoveModal" title="Retirer un IMEI">
+                    <i class="bi bi-dash-lg"></i>
+                  </button>
+                </div>
+              @else
+                <div class="btn-group btn-group-sm" role="group">
+                  <button type="button" class="btn btn-outline-success" data-stock-direction="in" data-bs-toggle="modal" data-bs-target="#stockAdjustModal" title="Ajouter du stock">
+                    <i class="bi bi-plus-lg"></i>
+                  </button>
+                  <button type="button" class="btn btn-outline-danger" data-stock-direction="out" data-bs-toggle="modal" data-bs-target="#stockAdjustModal" title="Retirer du stock">
+                    <i class="bi bi-dash-lg"></i>
+                  </button>
+                </div>
+              @endif
             </div>
           </div>
           <div class="detail-stat">
@@ -164,4 +184,280 @@
     @endif
   </div>
 </div>
+
+@unless($product->tracks_imei)
+  {{-- ── Ajustement manuel du stock (+/-) — produits sans suivi IMEI ── --}}
+  <div class="modal fade" id="stockAdjustModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="stockAdjustModalTitle">Ajuster le stock</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label" for="stockAdjustQuantity">Quantité</label>
+            <input type="number" min="1" step="1" class="form-control" id="stockAdjustQuantity" value="1" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label" for="stockAdjustReason">Motif (optionnel)</label>
+            <input type="text" class="form-control" id="stockAdjustReason" maxlength="255" placeholder="Ex. : réception fournisseur, casse, inventaire...">
+          </div>
+          <div class="invalid-feedback" id="stockAdjustError"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-primary" id="stockAdjustSubmit">Valider</button>
+        </div>
+      </div>
+    </div>
+  </div>
+@else
+  {{-- ── Ajout d'un IMEI ── --}}
+  <div class="modal fade" id="imeiAddModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Ajouter un IMEI</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          <label class="form-label" for="imeiAddInput">IMEI</label>
+          <input type="text" class="form-control" id="imeiAddInput" placeholder="Saisir ou scanner l'IMEI (14 à 17 chiffres)" inputmode="numeric" autocomplete="off">
+          <div class="invalid-feedback" id="imeiAddError"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          <button type="button" class="btn btn-primary" id="imeiAddSubmit">Ajouter</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  {{-- ── Retrait d'un IMEI disponible ── --}}
+  <div class="modal fade" id="imeiRemoveModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Retirer un IMEI</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fermer"></button>
+        </div>
+        <div class="modal-body">
+          @php $availableImeis = $product->imeis->where('status', \App\Enums\ImeiStatus::Available); @endphp
+          @if($availableImeis->isEmpty())
+            <p class="text-muted mb-0">Aucun IMEI disponible à retirer.</p>
+          @else
+            <label class="form-label" for="imeiRemoveSelect">IMEI à retirer</label>
+            <select class="form-select" id="imeiRemoveSelect">
+              @foreach($availableImeis as $availableImei)
+                <option value="{{ route('imeis.destroy', $availableImei) }}">{{ $availableImei->imei }}</option>
+              @endforeach
+            </select>
+          @endif
+          <div class="invalid-feedback" id="imeiRemoveError"></div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Annuler</button>
+          @if($availableImeis->isNotEmpty())
+            <button type="button" class="btn btn-danger" id="imeiRemoveSubmit">Retirer</button>
+          @endif
+        </div>
+      </div>
+    </div>
+  </div>
+@endunless
+
+@push('scripts')
+<script>
+(function () {
+  'use strict';
+
+  const csrfToken = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+  const stockQuantityDisplay = document.getElementById('stockQuantityDisplay');
+
+  // L'icône d'alerte (::before en CSS) ne doit apparaître que lorsqu'il y a
+  // réellement un message d'erreur — jamais par défaut sur une modale vierge.
+  function setFieldError(el, message) {
+    el.textContent = message || '';
+    el.classList.toggle('d-block', Boolean(message));
+  }
+
+  @unless($product->tracks_imei)
+    // ── Ajustement manuel du stock (+/-) ──
+    const stockAdjustModalEl = document.getElementById('stockAdjustModal');
+    const stockAdjustModal = new bootstrap.Modal(stockAdjustModalEl);
+    const stockAdjustTitle = document.getElementById('stockAdjustModalTitle');
+    const stockAdjustQuantity = document.getElementById('stockAdjustQuantity');
+    const stockAdjustReason = document.getElementById('stockAdjustReason');
+    const stockAdjustError = document.getElementById('stockAdjustError');
+    const stockAdjustSubmit = document.getElementById('stockAdjustSubmit');
+    let stockAdjustDirection = 'in';
+
+    stockAdjustModalEl.addEventListener('show.bs.modal', function (event) {
+      stockAdjustDirection = event.relatedTarget?.dataset.stockDirection === 'out' ? 'out' : 'in';
+      stockAdjustTitle.textContent = stockAdjustDirection === 'in' ? 'Ajouter du stock' : 'Retirer du stock';
+      stockAdjustSubmit.className = stockAdjustDirection === 'in' ? 'btn btn-success' : 'btn btn-danger';
+      stockAdjustQuantity.value = 1;
+      stockAdjustReason.value = '';
+      setFieldError(stockAdjustError, '');
+    });
+
+    stockAdjustSubmit.addEventListener('click', async function () {
+      const quantity = parseInt(stockAdjustQuantity.value, 10);
+      setFieldError(stockAdjustError, '');
+
+      if (!quantity || quantity < 1) {
+        setFieldError(stockAdjustError, 'Veuillez saisir une quantité valide.');
+        return;
+      }
+
+      stockAdjustSubmit.disabled = true;
+
+      try {
+        const response = await fetch('{{ route('products.stock.adjust', $product) }}', {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            direction: stockAdjustDirection,
+            quantity: quantity,
+            reason: stockAdjustReason.value.trim() || null,
+          }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setFieldError(stockAdjustError, data.error || 'Erreur lors de la mise à jour du stock.');
+          return;
+        }
+
+        if (stockQuantityDisplay && data.stock_quantity !== undefined) {
+          stockQuantityDisplay.textContent = data.stock_quantity;
+        }
+
+        stockAdjustModal.hide();
+        if (window.UiToast) {
+          window.UiToast.show('Stock mis à jour avec succès.', 'success');
+        }
+        setTimeout(() => window.location.reload(), 600);
+      } catch (error) {
+        setFieldError(stockAdjustError, 'Erreur réseau lors de la mise à jour du stock.');
+      } finally {
+        stockAdjustSubmit.disabled = false;
+      }
+    });
+  @else
+    // ── Ajout d'un IMEI ──
+    const imeiAddModalEl = document.getElementById('imeiAddModal');
+    const imeiAddModal = new bootstrap.Modal(imeiAddModalEl);
+    const imeiAddInput = document.getElementById('imeiAddInput');
+    const imeiAddError = document.getElementById('imeiAddError');
+    const imeiAddSubmit = document.getElementById('imeiAddSubmit');
+
+    imeiAddModalEl.addEventListener('show.bs.modal', function () {
+      imeiAddInput.value = '';
+      setFieldError(imeiAddError, '');
+    });
+
+    imeiAddSubmit.addEventListener('click', async function () {
+      const imei = imeiAddInput.value.trim();
+      setFieldError(imeiAddError, '');
+
+      if (!imei) {
+        setFieldError(imeiAddError, 'Veuillez saisir un IMEI.');
+        return;
+      }
+
+      imeiAddSubmit.disabled = true;
+
+      try {
+        const response = await fetch('{{ route('products.imeis.store', $product) }}', {
+          method: 'POST',
+          headers: {
+            'X-CSRF-TOKEN': csrfToken,
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ imeis: [imei] }),
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          setFieldError(imeiAddError, data.error || (data.errors ? Object.values(data.errors).flat().join(' ') : 'Erreur lors de l\'ajout.'));
+          return;
+        }
+
+        if (stockQuantityDisplay && data.stock_quantity !== undefined) {
+          stockQuantityDisplay.textContent = data.stock_quantity;
+        }
+
+        imeiAddModal.hide();
+        if (window.UiToast) {
+          window.UiToast.show('IMEI ajouté avec succès.', 'success');
+        }
+        setTimeout(() => window.location.reload(), 600);
+      } catch (error) {
+        setFieldError(imeiAddError, 'Erreur réseau lors de l\'ajout.');
+      } finally {
+        imeiAddSubmit.disabled = false;
+      }
+    });
+
+    // ── Retrait d'un IMEI disponible ──
+    const imeiRemoveSubmit = document.getElementById('imeiRemoveSubmit');
+    if (imeiRemoveSubmit) {
+      const imeiRemoveModalEl = document.getElementById('imeiRemoveModal');
+      const imeiRemoveModal = new bootstrap.Modal(imeiRemoveModalEl);
+      const imeiRemoveSelect = document.getElementById('imeiRemoveSelect');
+      const imeiRemoveError = document.getElementById('imeiRemoveError');
+
+      imeiRemoveSubmit.addEventListener('click', async function () {
+        const url = imeiRemoveSelect.value;
+        setFieldError(imeiRemoveError, '');
+
+        if (!url) return;
+
+        imeiRemoveSubmit.disabled = true;
+
+        try {
+          const response = await fetch(url, {
+            method: 'DELETE',
+            headers: {
+              'X-CSRF-TOKEN': csrfToken,
+              'Accept': 'application/json',
+            },
+          });
+
+          const data = await response.json();
+
+          if (!response.ok) {
+            setFieldError(imeiRemoveError, data.error || 'Erreur lors du retrait.');
+            return;
+          }
+
+          if (stockQuantityDisplay && data.stock_quantity !== undefined) {
+            stockQuantityDisplay.textContent = data.stock_quantity;
+          }
+
+          imeiRemoveModal.hide();
+          if (window.UiToast) {
+            window.UiToast.show('IMEI retiré avec succès.', 'success');
+          }
+          setTimeout(() => window.location.reload(), 600);
+        } catch (error) {
+          setFieldError(imeiRemoveError, 'Erreur réseau lors du retrait.');
+        } finally {
+          imeiRemoveSubmit.disabled = false;
+        }
+      });
+    }
+  @endunless
+})();
+</script>
+@endpush
 @endsection

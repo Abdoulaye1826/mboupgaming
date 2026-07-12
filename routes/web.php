@@ -63,6 +63,7 @@ Route::middleware(['auth', 'active'])->group(function () {
         Route::resource('products', ProductController::class);
         Route::resource('suppliers', SupplierController::class)->except(['show']);
         Route::get('stock', [StockController::class, 'index'])->name('stock.index');
+        Route::post('products/{product}/stock/adjust', [StockController::class, 'adjust'])->name('products.stock.adjust');
 
         // ── IMEI (téléphones) ────────────────────────────────
         Route::post('products/{product}/imeis', [ProductImeiController::class, 'store'])->name('products.imeis.store');
