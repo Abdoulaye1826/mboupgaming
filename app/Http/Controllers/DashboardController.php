@@ -25,15 +25,11 @@ class DashboardController extends Controller
             'stats' => $this->dashboardService->getStats($period),
             'salesEvolution' => $this->dashboardService->getSalesEvolution($period),
             'salesByCategory' => $this->dashboardService->getSalesByCategory($period),
-            'invoiceStatusSummary' => $this->dashboardService->getInvoiceStatusSummary($period),
             'topProducts' => $this->dashboardService->getTopProducts(5, $period),
-            'topCustomers' => $this->dashboardService->getTopCustomers(5, $period),
             'salesByUser' => $this->dashboardService->getSalesByUser(5, $period),
             'recentInvoices' => $this->dashboardService->getRecentInvoices(),
-            'recentQuotes' => $this->dashboardService->getRecentQuotes(),
             'stockAlerts' => $this->dashboardService->getStockAlerts(),
             'salesTypeBreakdown' => $this->dashboardService->getSalesTypeBreakdown($period),
-            'recentStockMovements' => $this->dashboardService->getRecentStockMovements(),
         ];
 
         if ($request->ajax()) {
@@ -43,7 +39,6 @@ class DashboardController extends Controller
                 'charts' => [
                     'salesEvolution' => $data['salesEvolution'],
                     'salesByCategory' => $data['salesByCategory'],
-                    'invoiceStatusSummary' => $data['invoiceStatusSummary'],
                     'salesTypeBreakdown' => $data['salesTypeBreakdown'],
                 ],
                 'period' => [

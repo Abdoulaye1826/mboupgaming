@@ -23,6 +23,8 @@ class ReportController extends Controller
             'topCustomers' => $this->dashboardService->getTopCustomers(),
             'salesByUser' => $this->dashboardService->getSalesByUser(),
             'recentInvoices' => $this->dashboardService->getRecentInvoices(),
+            'recentQuotes' => $this->dashboardService->getRecentQuotes(),
+            'recentStockMovements' => $this->dashboardService->getRecentStockMovements(),
         ]);
     }
 }

@@ -25,40 +25,30 @@
   @include('dashboard.partials.kpis', ['stats' => $stats, 'isCashier' => $isCashier])
 </div>
 
-{{-- Évolution des ventes + Évolution du chiffre d'affaires --}}
+{{-- Évolution des ventes --}}
 @unless($isCashier)
 <div class="row g-3 mb-4">
-  <div class="col-lg-6">
+  <div class="col-12">
     <div class="chart-card">
       <div class="card-title"><i class="bi bi-graph-up me-2"></i>Évolution des ventes</div>
       <canvas id="salesEvolutionChart" height="220"></canvas>
     </div>
   </div>
-  <div class="col-lg-6">
-    <div class="chart-card">
-      <div class="card-title"><i class="bi bi-bar-chart me-2"></i>Évolution du chiffre d'affaires</div>
-      <canvas id="revenueEvolutionChart" height="220"></canvas>
-    </div>
-  </div>
 </div>
 @endunless
 
-{{-- Répartition des ventes par catégorie + Statut des factures + Ventes vs Échanges --}}
+{{-- Répartition des ventes par catégorie + Ventes vs Échanges
+     (le détail complet — statut des factures, CA par mois, top clients,
+     devis récents, mouvements de stock — est sur la page Rapports). --}}
 <div class="row g-3 mb-4">
-  <div class="col-lg-{{ $isCashier ? 12 : 4 }}">
+  <div class="col-lg-{{ $isCashier ? 12 : 6 }}">
     <div class="chart-card h-100">
       <div class="card-title"><i class="bi bi-pie-chart me-2"></i>Répartition des ventes</div>
       <canvas id="salesByCategoryChart" height="220"></canvas>
     </div>
   </div>
   @unless($isCashier)
-  <div class="col-lg-4">
-    <div class="chart-card h-100">
-      <div class="card-title"><i class="bi bi-pie-chart-fill me-2"></i>Statut des factures</div>
-      <canvas id="invoiceStatusChart" height="220"></canvas>
-    </div>
-  </div>
-  <div class="col-lg-4">
+  <div class="col-lg-6">
     <div class="chart-card h-100">
       <div class="card-title"><i class="bi bi-arrow-left-right me-2"></i>Ventes vs Échanges</div>
       <canvas id="salesTypeChart" height="220"></canvas>
@@ -70,10 +60,7 @@
 <div id="dashboardTablesWrapper">
   @include('dashboard.partials.tables', [
     'isCashier' => $isCashier,
-    'recentStockMovements' => $recentStockMovements,
-    'recentQuotes' => $recentQuotes,
     'recentInvoices' => $recentInvoices,
-    'topCustomers' => $topCustomers,
     'salesByUser' => $salesByUser,
     'topProducts' => $topProducts,
     'stockAlerts' => $stockAlerts,
@@ -128,27 +115,6 @@
           }
         }
       });
-
-      charts.revenueEvolution = new Chart(document.getElementById('revenueEvolutionChart'), {
-        type: 'bar',
-        data: {
-          labels: evo.labels,
-          datasets: [{
-            label: 'CA (FCFA)',
-            data: evo.revenue,
-            backgroundColor: 'rgba(20, 40, 63, 0.75)',
-            borderRadius: 6,
-          }]
-        },
-        options: {
-          ...chartDefaults,
-          plugins: {
-            legend: { display: false },
-            tooltip: { callbacks: { label: ctx => ctx.parsed.y.toLocaleString('fr-FR') + ' FCFA' } }
-          },
-          scales: { y: { beginAtZero: true } }
-        }
-      });
     }
 
     const catLabels = data.salesByCategory.labels;
@@ -169,24 +135,6 @@
     });
 
     if (!isCashier) {
-      const invoiceLabels = data.invoiceStatusSummary.labels;
-      const invoiceValues = data.invoiceStatusSummary.values;
-      const invoiceColors = ['#1e3a5f', '#198754', '#ffc107', '#dc3545'];
-      charts.invoiceStatus = new Chart(document.getElementById('invoiceStatusChart'), {
-        type: 'doughnut',
-        data: {
-          labels: invoiceLabels.length ? invoiceLabels : ['Aucune donnée'],
-          datasets: [{
-            data: invoiceValues.length ? invoiceValues : [1],
-            backgroundColor: invoiceLabels.length ? invoiceColors.slice(0, invoiceLabels.length) : ['#e2e8f0'],
-          }]
-        },
-        options: {
-          ...chartDefaults,
-          plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 11 } } } }
-        }
-      });
-
       const typeLabels = data.salesTypeBreakdown.labels;
       const typeData = data.salesTypeBreakdown.data;
       charts.salesType = new Chart(document.getElementById('salesTypeChart'), {
@@ -266,7 +214,6 @@
   renderCharts({
     salesEvolution: @json($salesEvolution ?? ['labels' => [], 'revenue' => [], 'count' => []]),
     salesByCategory: @json($salesByCategory),
-    invoiceStatusSummary: @json($invoiceStatusSummary ?? ['labels' => [], 'values' => [], 'counts' => []]),
     salesTypeBreakdown: @json($salesTypeBreakdown ?? ['labels' => [], 'data' => []]),
   });
 })();

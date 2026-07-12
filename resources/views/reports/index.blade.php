@@ -348,6 +348,88 @@
     </div>
   </div>
 </div>
+
+<div class="row g-3 mt-1">
+  <div class="col-lg-6">
+    <div class="table-card h-100">
+      <div class="p-3 border-bottom d-flex align-items-center justify-content-between gap-2 flex-wrap">
+        <h6 class="mb-0 fw-semibold"><i class="bi bi-file-earmark-ruled me-2"></i>Devis récents</h6>
+        <a href="{{ route('quotes.index') }}" class="small text-decoration-none">Voir tout</a>
+      </div>
+      <div class="table-responsive">
+        <table class="table table-hover mb-0">
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>Client</th>
+              <th class="text-end">Montant</th>
+              <th class="text-end">Statut</th>
+            </tr>
+          </thead>
+          <tbody>
+            @forelse($recentQuotes as $quote)
+              <tr>
+                <td>{{ $quote->quote_number }}</td>
+                <td>{{ $quote->customer?->full_name ?? '—' }}</td>
+                <td class="text-end">{{ number_format($quote->total_ttc, 0, ',', ' ') }} FCFA</td>
+                <td class="text-end">
+                  <span class="badge {{ $quote->status->badgeClass() }}">{{ $quote->status->label() }}</span>
+                </td>
+              </tr>
+            @empty
+              <tr class="empty-row">
+                <td colspan="4" class="text-center text-muted py-4">Aucun devis récent</td>
+              </tr>
+            @endforelse
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-6">
+    <div class="table-card h-100">
+      <div class="p-3 border-bottom">
+        <h6 class="mb-0 fw-semibold"><i class="bi bi-arrow-down-up me-2"></i>Derniers mouvements de stock</h6>
+      </div>
+      <div class="table-responsive" style="max-height: 360px;">
+        <table class="table table-hover mb-0 small">
+          <thead>
+            <tr>
+              <th>Produit</th>
+              <th>Type</th>
+              <th class="text-end">Qté</th>
+            </tr>
+          </thead>
+          <tbody>
+            @forelse($recentStockMovements as $movement)
+              <tr>
+                <td>{{ $movement->product?->name ?? '—' }}</td>
+                <td>
+                  @php
+                    $movementBadge = match($movement->type->value ?? $movement->type) {
+                      'entry' => 'bg-success',
+                      'exit' => 'bg-danger',
+                      'sale' => 'bg-primary',
+                      'return' => 'bg-warning text-dark',
+                      default => 'bg-secondary',
+                    };
+                  @endphp
+                  <span class="badge {{ $movementBadge }}">{{ $movement->type->label() }}</span>
+                </td>
+                <td class="text-end">{{ $movement->quantity_before }} → {{ $movement->quantity_after }}</td>
+              </tr>
+            @empty
+              <tr class="empty-row">
+                <td colspan="3" class="text-center text-muted py-4">Aucun mouvement de stock</td>
+              </tr>
+            @endforelse
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
 @endsection
 
 @push('scripts')
