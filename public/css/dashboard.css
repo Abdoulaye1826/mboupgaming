@@ -357,14 +357,110 @@ a:focus-visible, button:focus-visible, input:focus-visible, .nav-link:focus-visi
 /* ── KPI principal (chiffre d'affaires) — mis en avant sur fond sombre ── */
 .kpi-card--hero {
     display: flex;
-    align-items: center;
-    gap: 1.75rem;
+    flex-direction: column;
+    gap: 1.25rem;
     padding: 1.75rem 2rem;
     background: linear-gradient(135deg, #1432ca 0%, #1432ca 100%);
     border: none;
 }
 
 .kpi-card--hero::before { display: none; }
+
+/* ── Filtre de période intégré au KPI principal ── */
+.kpi-hero__top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+}
+
+.kpi-hero__main {
+    display: flex;
+    align-items: center;
+    gap: 1.75rem;
+}
+
+.kpi-hero__filter {
+    display: flex;
+    align-items: center;
+    gap: .6rem;
+    flex-wrap: wrap;
+}
+
+.kpi-hero__select {
+    background: rgba(255, 255, 255, .14);
+    border: 1px solid rgba(255, 255, 255, .32);
+    color: #fff;
+    border-radius: 8px;
+    padding: .5rem 2rem .5rem .9rem;
+    font-size: .85rem;
+    font-weight: 600;
+    min-width: 178px;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%23ffffff' d='M1 1l5 5 5-5'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right .8rem center;
+}
+
+.kpi-hero__select:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, .65);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .16);
+}
+
+.kpi-hero__select option { color: #1a1a2e; }
+
+.kpi-hero__custom {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+    flex-wrap: wrap;
+}
+
+.kpi-hero__date {
+    background: rgba(255, 255, 255, .14);
+    border: 1px solid rgba(255, 255, 255, .32);
+    color: #fff;
+    border-radius: 8px;
+    padding: .45rem .7rem;
+    font-size: .82rem;
+    color-scheme: dark;
+}
+
+.kpi-hero__date:focus {
+    outline: none;
+    border-color: rgba(255, 255, 255, .65);
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, .16);
+}
+
+.kpi-hero__apply {
+    background: #fff;
+    color: var(--copper);
+    border: none;
+    border-radius: 8px;
+    padding: .45rem .8rem;
+    font-weight: 700;
+    font-size: .9rem;
+    line-height: 1;
+    display: flex;
+    align-items: center;
+    transition: background .15s ease;
+}
+
+.kpi-hero__apply:hover { background: rgba(255, 255, 255, .88); }
+
+.kpi-hero__period-label {
+    font-size: .78rem;
+    color: rgba(255, 255, 255, .72);
+    white-space: nowrap;
+}
+
+@media (max-width: 767.98px) {
+    .kpi-hero__top { flex-direction: column; align-items: stretch; }
+    .kpi-hero__filter { width: 100%; }
+    .kpi-hero__select { flex: 1; min-width: 0; }
+}
 
 .kpi-card--hero .kpi-hero__icon {
     width: 84px;

@@ -11,10 +11,37 @@
 <div class="row g-3 mb-3">
   <div class="col-12">
     <div class="kpi-card kpi-card--hero">
-      <div class="kpi-hero__icon"><i class="bi bi-currency-exchange"></i></div>
-      <div>
-        <div class="kpi-hero__label">Chiffre d'affaires</div>
-        <div class="kpi-hero__value">{{ number_format($p['revenue'], 0, ',', ' ') }} <span>FCFA</span></div>
+      <div class="kpi-hero__top">
+        <div class="kpi-hero__main">
+          <div class="kpi-hero__icon"><i class="bi bi-currency-exchange"></i></div>
+          <div>
+            <div class="kpi-hero__label">Chiffre d'affaires</div>
+            <div class="kpi-hero__value">{{ number_format($p['revenue'], 0, ',', ' ') }} <span>FCFA</span></div>
+          </div>
+        </div>
+
+        <div class="kpi-hero__filter">
+          <select id="periodSelect" class="kpi-hero__select">
+            <option value="today" @selected($period->key === 'today')>Aujourd'hui</option>
+            <option value="yesterday" @selected($period->key === 'yesterday')>Hier</option>
+            <option value="week" @selected($period->key === 'week')>Cette semaine</option>
+            <option value="month" @selected($period->key === 'month')>Ce mois</option>
+            <option value="year" @selected($period->key === 'year')>Cette année</option>
+            <option value="custom" @selected($period->key === 'custom')>Période personnalisée</option>
+          </select>
+
+          <div id="customPeriodFields" class="kpi-hero__custom @if($period->key !== 'custom') d-none @endif">
+            <input type="date" id="periodStart" class="kpi-hero__date" value="{{ $period->key === 'custom' ? $period->start->toDateString() : '' }}">
+            <input type="date" id="periodEnd" class="kpi-hero__date" value="{{ $period->key === 'custom' ? $period->end->toDateString() : '' }}">
+            <button type="button" id="applyCustomPeriod" class="kpi-hero__apply">
+              <i class="bi bi-check-lg"></i>
+            </button>
+          </div>
+
+          <div class="kpi-hero__period-label" id="periodLabel">
+            <i class="bi bi-calendar3 me-1"></i><span>{{ $period->label }}</span>
+          </div>
+        </div>
       </div>
     </div>
   </div>

@@ -19,10 +19,8 @@
   </div>
 </div>
 
-@include('dashboard.partials.filter-bar', ['period' => $period])
-
 <div id="dashboardKpisWrapper" class="mb-2">
-  @include('dashboard.partials.kpis', ['stats' => $stats, 'isCashier' => $isCashier])
+  @include('dashboard.partials.kpis', ['stats' => $stats, 'isCashier' => $isCashier, 'period' => $period])
 </div>
 
 {{-- Actions rapides --}}
@@ -154,23 +152,30 @@
       .finally(() => { inFlightController = null; });
   }
 
-  const periodSelect = document.getElementById('periodSelect');
-  const customFields = document.getElementById('customPeriodFields');
-  const periodStart = document.getElementById('periodStart');
-  const periodEnd = document.getElementById('periodEnd');
-  const applyCustomBtn = document.getElementById('applyCustomPeriod');
+  // Le sélecteur de période vit maintenant dans le KPI principal, qui est
+  // entièrement remplacé (innerHTML) à chaque rafraîchissement AJAX : on
+  // délègue donc les événements sur le conteneur stable plutôt que de les
+  // attacher directement aux champs, qui eux sont recréés à chaque fois.
+  const kpisWrapper = document.getElementById('dashboardKpisWrapper');
 
-  periodSelect.addEventListener('change', function () {
-    if (this.value === 'custom') {
+  kpisWrapper.addEventListener('change', function (e) {
+    if (e.target?.id !== 'periodSelect') return;
+
+    const customFields = document.getElementById('customPeriodFields');
+    if (e.target.value === 'custom') {
       customFields.classList.remove('d-none');
       return;
     }
 
     customFields.classList.add('d-none');
-    fetchDashboard(new URLSearchParams({ period: this.value }));
+    fetchDashboard(new URLSearchParams({ period: e.target.value }));
   });
 
-  applyCustomBtn?.addEventListener('click', function () {
+  kpisWrapper.addEventListener('click', function (e) {
+    if (!e.target?.closest('#applyCustomPeriod')) return;
+
+    const periodStart = document.getElementById('periodStart');
+    const periodEnd = document.getElementById('periodEnd');
     if (!periodStart.value || !periodEnd.value) return;
 
     fetchDashboard(new URLSearchParams({
