@@ -92,6 +92,20 @@ class User extends Authenticatable
         return $this->hasRole(RoleSlug::Admin);
     }
 
+    /**
+     * Page d'atterrissage après connexion. Admin/gestionnaire vont
+     * directement sur les produits ; les autres rôles (caissier, livreur)
+     * n'ont pas accès à cette page et restent sur le dashboard.
+     */
+    public function homeRoute(): string
+    {
+        if ($this->hasRole(RoleSlug::Admin) || $this->hasRole(RoleSlug::Manager)) {
+            return route('products.index');
+        }
+
+        return route('dashboard');
+    }
+
     public function isManager(): bool
     {
         return $this->hasRole(RoleSlug::Manager);
