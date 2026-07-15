@@ -218,10 +218,8 @@
   // restait vide dans le PDF envoyé/téléchargé, alors qu'il s'affichait
   // normalement dans l'aperçu navigateur (simple HTML, pas de DomPDF).
   // Le data URI fonctionne à l'identique dans les deux contextes.
-  $logoPath = public_path('images/logo.jpeg');
-  $logoSrc = is_file($logoPath)
-      ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoPath))
-      : asset('images/logo.jpeg');
+  $entrepriseDoc = entreprise();
+  $logoSrc = $entrepriseDoc->logo_base64 ?? asset('images/logo.jpeg');
 @endphp
 
 @if(empty($isPdf))
@@ -248,11 +246,11 @@
     <div class="brand">
       <div class="brand-row">
         <div class="brand-icon">
-          <img src="{{ $logoSrc }}" alt="Mboup Gaming">
+          <img src="{{ $logoSrc }}" alt="{{ $entrepriseDoc->nom }}">
         </div>
         <div>
-          <div class="brand-name">Mboup Gaming</div>
-          <div class="brand-sub">Système d'information</div>
+          <div class="brand-name">{{ $entrepriseDoc->nom }}</div>
+          <div class="brand-sub">{{ $entrepriseDoc->slogan ?: "Système d'information" }}</div>
         </div>
       </div>
     </div>
@@ -476,22 +474,21 @@
     <div class="conditions-group">
       <h4>Conditions</h4>
       <p>
-        @php $remarksText = $invoice?->notes ?? $sale->notes; @endphp
-        @if($remarksText)
-          {{ $remarksText }}
-        @else
-          Le service après-vente peut durer une semaine maximum si la garantie n'est pas expiré. Nous ne remboursons pas — nous réparons ou remplaçons.
-        @endif
+        @php
+          $remarksText = $invoice?->notes ?? $sale->notes ?? $entrepriseDoc->conditions_vente;
+          $remarksText = $remarksText ?: "Le service après-vente peut durer une semaine maximum si la garantie n'est pas expiré. Nous ne remboursons pas — nous réparons ou remplaçons.";
+        @endphp
+        {{ $remarksText }}
       </p>
     </div>
 
     <div class="footer-line">
-      Tél : <strong>{{ config('company.phone') }}</strong>
-      &nbsp;&nbsp;·&nbsp;&nbsp;Email : {{ config('company.email') }}
-      &nbsp;&nbsp;·&nbsp;&nbsp;{{ config('company.address_line1') }}, {{ config('company.address_line2') }}
+      Tél : <strong>{{ $entrepriseDoc->telephone }}</strong>
+      &nbsp;&nbsp;·&nbsp;&nbsp;Email : {{ $entrepriseDoc->email }}
+      &nbsp;&nbsp;·&nbsp;&nbsp;{{ $entrepriseDoc->adresse_complete }}
     </div>
     <div class="footer-legal">
-      Ninea : {{ config('company.ninea') }} — RC : {{ config('company.rc') }}
+      Ninea : {{ $entrepriseDoc->ninea }} — RCCM : {{ $entrepriseDoc->rccm }}
     </div>
   </div>
 

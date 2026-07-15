@@ -106,6 +106,12 @@ class MenuService
                 'icon' => 'bi-person-gear',
                 'roles' => ['admin', 'manager'],
             ],
+            [
+                'label' => 'Paramètres',
+                'route' => 'settings.entreprise.edit',
+                'icon' => 'bi-gear',
+                'roles' => ['admin'],
+            ],
         ];
     }
 }

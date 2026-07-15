@@ -13,6 +13,7 @@ use App\Http\Controllers\QuoteController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ReturnController;
 use App\Http\Controllers\SaleController;
+use App\Http\Controllers\SettingsController;
 use App\Http\Controllers\StockController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\UserController;
@@ -68,6 +69,12 @@ Route::middleware(['auth', 'active'])->group(function () {
         // ── IMEI (téléphones) ────────────────────────────────
         Route::post('products/{product}/imeis', [ProductImeiController::class, 'store'])->name('products.imeis.store');
         Route::delete('imeis/{imei}', [ProductImeiController::class, 'destroy'])->name('imeis.destroy');
+    });
+
+    // ── Paramètres de l'entreprise (Admin uniquement) ──────────
+    Route::middleware('role:admin')->group(function () {
+        Route::get('parametres/entreprise', [SettingsController::class, 'edit'])->name('settings.entreprise.edit');
+        Route::put('parametres/entreprise', [SettingsController::class, 'update'])->name('settings.entreprise.update');
     });
 
     // ── Rapports (Admin, Gestionnaire, Caissier) ──────────────

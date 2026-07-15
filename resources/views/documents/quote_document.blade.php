@@ -169,10 +169,8 @@
   // distantes par défaut, donc le logo restait vide dans le PDF envoyé/
   // téléchargé. Le data URI base64 fonctionne à l'identique dans l'aperçu
   // navigateur et dans le PDF généré par DomPDF.
-  $logoPath = public_path('images/logo.jpeg');
-  $logoSrc = is_file($logoPath)
-      ? 'data:image/jpeg;base64,' . base64_encode(file_get_contents($logoPath))
-      : asset('images/logo.jpeg');
+  $entrepriseDoc = entreprise();
+  $logoSrc = $entrepriseDoc->logo_base64 ?? asset('images/logo.jpeg');
 @endphp
 
 @if(empty($isPdf))
@@ -198,11 +196,11 @@
     <div class="brand">
       <div class="brand-row">
         <div class="brand-icon">
-          <img src="{{ $logoSrc }}" alt="Mboup Gaming">
+          <img src="{{ $logoSrc }}" alt="{{ $entrepriseDoc->nom }}">
         </div>
         <div>
-          <div class="brand-name">Mboup Gaming</div>
-          <div class="brand-sub">Système d'information</div>
+          <div class="brand-name">{{ $entrepriseDoc->nom }}</div>
+          <div class="brand-sub">{{ $entrepriseDoc->slogan ?: "Système d'information" }}</div>
         </div>
       </div>
     </div>
@@ -317,12 +315,12 @@
     </div>
 
     <div class="footer-line">
-      Tél : <strong>{{ config('company.phone') }}</strong>
-      &nbsp;&nbsp;·&nbsp;&nbsp;Email : {{ config('company.email') }}
-      &nbsp;&nbsp;·&nbsp;&nbsp;{{ config('company.address_line1') }}, {{ config('company.address_line2') }}
+      Tél : <strong>{{ $entrepriseDoc->telephone }}</strong>
+      &nbsp;&nbsp;·&nbsp;&nbsp;Email : {{ $entrepriseDoc->email }}
+      &nbsp;&nbsp;·&nbsp;&nbsp;{{ $entrepriseDoc->adresse_complete }}
     </div>
     <div class="footer-legal">
-      Ninea : {{ config('company.ninea') }} — RC : {{ config('company.rc') }}
+      Ninea : {{ $entrepriseDoc->ninea }} — RCCM : {{ $entrepriseDoc->rccm }}
     </div>
   </div>
 

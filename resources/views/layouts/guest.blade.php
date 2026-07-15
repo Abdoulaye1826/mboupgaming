@@ -8,15 +8,16 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link href="{{ asset('css/dashboard.css') }}?v={{ @filemtime(public_path('css/dashboard.css')) ?: '1' }}" rel="stylesheet">
+    @include('layouts.partials.theme-colors')
 </head>
 <body>
     <div class="auth-wrapper">
         <div class="auth-card">
             <div class="auth-logo">
                 <div class="logo-icon">
-                    <img src="{{ asset('images/logo.jpeg') }}" alt="Mboup Gaming">
+                    <img src="{{ entreprise()->logo_url }}" alt="{{ entreprise()->nom }}">
                 </div>
-                <h4 class="fw-bold mb-0">Mboup Gaming</h4>
+                <h4 class="fw-bold mb-0">{{ entreprise()->nom }}</h4>
                 <small class="text-muted">Système d'information</small>
             </div>
             @if (session('status'))
