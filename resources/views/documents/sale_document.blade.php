@@ -169,7 +169,10 @@
        juste en dessous (sans filet supplémentaire), la ligne de contact.
        Un seul filet supérieur pour tout le bloc, comme sur le modèle de
        référence (conditions de paiement + contact réunis). ── */
-    .bottom-section { margin-top: 22px; padding: 16px 32px 14px; border-top: 1px solid var(--line); }
+    /* page-break-inside:avoid — sans ça, DomPDF peut couper ce bloc en
+       plein milieu (conditions sur une page, contact sur la suivante)
+       plutôt que de le pousser entier sur la page suivante. */
+    .bottom-section { margin-top: 22px; padding: 16px 32px 14px; border-top: 1px solid var(--line); page-break-inside: avoid; }
 
     .conditions-group + .conditions-group { margin-top: 12px; }
     .conditions-group h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
@@ -193,13 +196,16 @@
   </style>
   @if(empty($isPdf))
     {{-- Réservé à l'aperçu navigateur — jamais envoyé à DomPDF, qui gère
-         mal min-height et position:absolute sur un pied de page (page
-         vide en trop constatée précédemment). Un vrai navigateur, lui,
-         n'a pas ce problème de pagination : le footer peut donc être
-         collé au bas de .page sans risque ici. --}}
+         mal min-height (page vide en trop constatée précédemment).
+         Le pied de page est collé en bas via flexbox (margin-top:auto),
+         pas position:absolute : combiné à page-break-inside:avoid, le
+         positionnement absolu faisait flotter le bloc en plein milieu de
+         page à l'impression navigateur plutôt qu'en bas. Flexbox reste
+         dans le flux normal du document, donc compatible avec
+         page-break-inside:avoid. --}}
     <style>
-      .page { min-height: 297mm; padding-bottom: 160px; }
-      .bottom-section { position: absolute; left: 0; right: 0; bottom: 0; margin-top: 0; }
+      .page { min-height: 297mm; display: flex; flex-direction: column; }
+      .bottom-section { margin-top: auto; }
     </style>
   @endif
 </head>

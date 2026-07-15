@@ -130,8 +130,10 @@
     .amount-words span { font-weight: 700; color: var(--text); }
 
     /* Un seul bloc pour les conditions et le contact, comme sur le modèle
-       de référence : un filet supérieur, pas de filet entre les deux. */
-    .bottom-section { margin-top: 22px; padding: 16px 32px 14px; border-top: 1px solid var(--line); }
+       de référence : un filet supérieur, pas de filet entre les deux.
+       page-break-inside:avoid — sans ça, DomPDF peut couper ce bloc en
+       plein milieu plutôt que de le pousser entier sur la page suivante. */
+    .bottom-section { margin-top: 22px; padding: 16px 32px 14px; border-top: 1px solid var(--line); page-break-inside: avoid; }
     .conditions-group h4 { font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--accent); margin-bottom: 6px; }
     .conditions-group p { font-size: 11.5px; color: var(--text-muted); line-height: 1.6; }
 
@@ -152,10 +154,11 @@
   </style>
   @if(empty($isPdf))
     {{-- Voir sale_document.blade.php : réservé à l'aperçu navigateur,
-         jamais envoyé à DomPDF. --}}
+         jamais envoyé à DomPDF. Flexbox (margin-top:auto) plutôt que
+         position:absolute — voir le commentaire détaillé là-bas. --}}
     <style>
-      .page { min-height: 297mm; padding-bottom: 160px; }
-      .bottom-section { position: absolute; left: 0; right: 0; bottom: 0; margin-top: 0; }
+      .page { min-height: 297mm; display: flex; flex-direction: column; }
+      .bottom-section { margin-top: auto; }
     </style>
   @endif
 </head>
