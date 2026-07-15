@@ -12,7 +12,13 @@ class AppServiceProvider extends ServiceProvider
 {
     public function register(): void
     {
-        //
+        // Charge le helper entreprise() sans dépendre de l'entrée
+        // composer.json "autoload.files" — celle-ci n'est effective
+        // qu'après un `composer install`/`dump-autoload`, indisponible sur
+        // certains hébergements mutualisés (composer absent du PATH SSH).
+        // AppServiceProvider, lui, est toujours chargé via l'autoload PSR-4
+        // normal, donc ce require_once est garanti à chaque déploiement.
+        require_once app_path('helpers.php');
     }
 
     public function boot(): void
