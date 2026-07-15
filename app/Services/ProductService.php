@@ -16,7 +16,7 @@ class ProductService
         private readonly ActivityLogService $activityLog
     ) {}
 
-    public function paginate(array $filters = [], int $perPage = 15): LengthAwarePaginator
+    public function paginate(array $filters = [], int $perPage = 30): LengthAwarePaginator
     {
         $allowedSorts = ['name', 'reference', 'sale_price', 'stock_quantity', 'created_at'];
         $sort = in_array($filters['sort'] ?? '', $allowedSorts, true) ? $filters['sort'] : 'created_at';
